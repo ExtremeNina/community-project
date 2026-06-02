@@ -1,0 +1,1651 @@
+/**
+ * name: vue-picture-cropper
+ * version: v0.7.0
+ * description: A simple and easy-to-use picture cropping component for Vue 3.
+ * author: chengpeiquan <chengpeiquan@chengpeiquan.com>
+ * homepage: https://cropper.chengpeiquan.com
+ * license: MIT
+ */
+import { defineComponent as jt, ref as Pi, watch as Ct, onBeforeUnmount as At, createVNode as Xi, nextTick as Tt } from "vue";
+/*!
+ * Cropper.js v1.6.1
+ * https://fengyuanchen.github.io/cropperjs
+ *
+ * Copyright 2015-present Chen Fengyuan
+ * Released under the MIT license
+ *
+ * Date: 2023-09-17T03:44:19.860Z
+ */
+function Hi(e, i) {
+  var a = Object.keys(e);
+  if (Object.getOwnPropertySymbols) {
+    var t = Object.getOwnPropertySymbols(e);
+    i && (t = t.filter(function(o) {
+      return Object.getOwnPropertyDescriptor(e, o).enumerable;
+    })), a.push.apply(a, t);
+  }
+  return a;
+}
+function pt(e) {
+  for (var i = 1; i < arguments.length; i++) {
+    var a = arguments[i] != null ? arguments[i] : {};
+    i % 2 ? Hi(Object(a), !0).forEach(function(t) {
+      St(e, t, a[t]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(a)) : Hi(Object(a)).forEach(function(t) {
+      Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(a, t));
+    });
+  }
+  return e;
+}
+function bi(e) {
+  "@babel/helpers - typeof";
+  return bi = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(i) {
+    return typeof i;
+  } : function(i) {
+    return i && typeof Symbol == "function" && i.constructor === Symbol && i !== Symbol.prototype ? "symbol" : typeof i;
+  }, bi(e);
+}
+function Ot(e, i) {
+  if (!(e instanceof i))
+    throw new TypeError("Cannot call a class as a function");
+}
+function qi(e, i) {
+  for (var a = 0; a < i.length; a++) {
+    var t = i[a];
+    t.enumerable = t.enumerable || !1, t.configurable = !0, "value" in t && (t.writable = !0), Object.defineProperty(e, st(t.key), t);
+  }
+}
+function Nt(e, i, a) {
+  return i && qi(e.prototype, i), a && qi(e, a), Object.defineProperty(e, "prototype", {
+    writable: !1
+  }), e;
+}
+function St(e, i, a) {
+  return i = st(i), i in e ? Object.defineProperty(e, i, {
+    value: a,
+    enumerable: !0,
+    configurable: !0,
+    writable: !0
+  }) : e[i] = a, e;
+}
+function rt(e) {
+  return Rt(e) || _t(e) || It(e) || Lt();
+}
+function Rt(e) {
+  if (Array.isArray(e))
+    return wi(e);
+}
+function _t(e) {
+  if (typeof Symbol < "u" && e[Symbol.iterator] != null || e["@@iterator"] != null)
+    return Array.from(e);
+}
+function It(e, i) {
+  if (e) {
+    if (typeof e == "string")
+      return wi(e, i);
+    var a = Object.prototype.toString.call(e).slice(8, -1);
+    if (a === "Object" && e.constructor && (a = e.constructor.name), a === "Map" || a === "Set")
+      return Array.from(e);
+    if (a === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(a))
+      return wi(e, i);
+  }
+}
+function wi(e, i) {
+  (i == null || i > e.length) && (i = e.length);
+  for (var a = 0, t = new Array(i); a < i; a++)
+    t[a] = e[a];
+  return t;
+}
+function Lt() {
+  throw new TypeError(`Invalid attempt to spread non-iterable instance.
+In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`);
+}
+function Bt(e, i) {
+  if (typeof e != "object" || e === null)
+    return e;
+  var a = e[Symbol.toPrimitive];
+  if (a !== void 0) {
+    var t = a.call(e, i || "default");
+    if (typeof t != "object")
+      return t;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return (i === "string" ? String : Number)(e);
+}
+function st(e) {
+  var i = Bt(e, "string");
+  return typeof i == "symbol" ? i : String(i);
+}
+var hi = typeof window < "u" && typeof window.document < "u", B = hi ? window : {}, Ai = hi && B.document.documentElement ? "ontouchstart" in B.document.documentElement : !1, Ti = hi ? "PointerEvent" in B : !1, w = "cropper", Oi = "all", ct = "crop", lt = "move", dt = "zoom", G = "e", F = "w", Z = "s", q = "n", ai = "ne", ei = "nw", ni = "se", oi = "sw", yi = "".concat(w, "-crop"), Yi = "".concat(w, "-disabled"), T = "".concat(w, "-hidden"), Wi = "".concat(w, "-hide"), Pt = "".concat(w, "-invisible"), mi = "".concat(w, "-modal"), ki = "".concat(w, "-move"), ri = "".concat(w, "Action"), li = "".concat(w, "Preview"), Ni = "crop", mt = "move", ht = "none", Di = "crop", Ei = "cropend", Mi = "cropmove", zi = "cropstart", Ui = "dblclick", Xt = Ai ? "touchstart" : "mousedown", Ht = Ai ? "touchmove" : "mousemove", qt = Ai ? "touchend touchcancel" : "mouseup", Vi = Ti ? "pointerdown" : Xt, $i = Ti ? "pointermove" : Ht, Gi = Ti ? "pointerup pointercancel" : qt, Fi = "ready", Qi = "resize", Zi = "wheel", ji = "zoom", Ki = "image/jpeg", Yt = /^e|w|s|n|se|sw|ne|nw|all|crop|move|zoom$/, Wt = /^data:/, Ut = /^data:image\/jpeg;base64,/, Vt = /^img|canvas$/i, vt = 200, ft = 100, Ji = {
+  // Define the view mode of the cropper
+  viewMode: 0,
+  // 0, 1, 2, 3
+  // Define the dragging mode of the cropper
+  dragMode: Ni,
+  // 'crop', 'move' or 'none'
+  // Define the initial aspect ratio of the crop box
+  initialAspectRatio: NaN,
+  // Define the aspect ratio of the crop box
+  aspectRatio: NaN,
+  // An object with the previous cropping result data
+  data: null,
+  // A selector for adding extra containers to preview
+  preview: "",
+  // Re-render the cropper when resize the window
+  responsive: !0,
+  // Restore the cropped area after resize the window
+  restore: !0,
+  // Check if the current image is a cross-origin image
+  checkCrossOrigin: !0,
+  // Check the current image's Exif Orientation information
+  checkOrientation: !0,
+  // Show the black modal
+  modal: !0,
+  // Show the dashed lines for guiding
+  guides: !0,
+  // Show the center indicator for guiding
+  center: !0,
+  // Show the white modal to highlight the crop box
+  highlight: !0,
+  // Show the grid background
+  background: !0,
+  // Enable to crop the image automatically when initialize
+  autoCrop: !0,
+  // Define the percentage of automatic cropping area when initializes
+  autoCropArea: 0.8,
+  // Enable to move the image
+  movable: !0,
+  // Enable to rotate the image
+  rotatable: !0,
+  // Enable to scale the image
+  scalable: !0,
+  // Enable to zoom the image
+  zoomable: !0,
+  // Enable to zoom the image by dragging touch
+  zoomOnTouch: !0,
+  // Enable to zoom the image by wheeling mouse
+  zoomOnWheel: !0,
+  // Define zoom ratio when zoom the image by wheeling mouse
+  wheelZoomRatio: 0.1,
+  // Enable to move the crop box
+  cropBoxMovable: !0,
+  // Enable to resize the crop box
+  cropBoxResizable: !0,
+  // Toggle drag mode between "crop" and "move" when click twice on the cropper
+  toggleDragModeOnDblclick: !0,
+  // Size limitation
+  minCanvasWidth: 0,
+  minCanvasHeight: 0,
+  minCropBoxWidth: 0,
+  minCropBoxHeight: 0,
+  minContainerWidth: vt,
+  minContainerHeight: ft,
+  // Shortcuts of events
+  ready: null,
+  cropstart: null,
+  cropmove: null,
+  cropend: null,
+  crop: null,
+  zoom: null
+}, $t = '<div class="cropper-container" touch-action="none"><div class="cropper-wrap-box"><div class="cropper-canvas"></div></div><div class="cropper-drag-box"></div><div class="cropper-crop-box"><span class="cropper-view-box"></span><span class="cropper-dashed dashed-h"></span><span class="cropper-dashed dashed-v"></span><span class="cropper-center"></span><span class="cropper-face"></span><span class="cropper-line line-e" data-cropper-action="e"></span><span class="cropper-line line-n" data-cropper-action="n"></span><span class="cropper-line line-w" data-cropper-action="w"></span><span class="cropper-line line-s" data-cropper-action="s"></span><span class="cropper-point point-e" data-cropper-action="e"></span><span class="cropper-point point-n" data-cropper-action="n"></span><span class="cropper-point point-w" data-cropper-action="w"></span><span class="cropper-point point-s" data-cropper-action="s"></span><span class="cropper-point point-ne" data-cropper-action="ne"></span><span class="cropper-point point-nw" data-cropper-action="nw"></span><span class="cropper-point point-sw" data-cropper-action="sw"></span><span class="cropper-point point-se" data-cropper-action="se"></span></div></div>', Gt = Number.isNaN || B.isNaN;
+function u(e) {
+  return typeof e == "number" && !Gt(e);
+}
+var it = function(i) {
+  return i > 0 && i < 1 / 0;
+};
+function gi(e) {
+  return typeof e > "u";
+}
+function Q(e) {
+  return bi(e) === "object" && e !== null;
+}
+var Ft = Object.prototype.hasOwnProperty;
+function K(e) {
+  if (!Q(e))
+    return !1;
+  try {
+    var i = e.constructor, a = i.prototype;
+    return i && a && Ft.call(a, "isPrototypeOf");
+  } catch {
+    return !1;
+  }
+}
+function A(e) {
+  return typeof e == "function";
+}
+var Qt = Array.prototype.slice;
+function ut(e) {
+  return Array.from ? Array.from(e) : Qt.call(e);
+}
+function D(e, i) {
+  return e && A(i) && (Array.isArray(e) || u(e.length) ? ut(e).forEach(function(a, t) {
+    i.call(e, a, t, e);
+  }) : Q(e) && Object.keys(e).forEach(function(a) {
+    i.call(e, e[a], a, e);
+  })), e;
+}
+var y = Object.assign || function(i) {
+  for (var a = arguments.length, t = new Array(a > 1 ? a - 1 : 0), o = 1; o < a; o++)
+    t[o - 1] = arguments[o];
+  return Q(i) && t.length > 0 && t.forEach(function(n) {
+    Q(n) && Object.keys(n).forEach(function(p) {
+      i[p] = n[p];
+    });
+  }), i;
+}, Zt = /\.\d*(?:0|9){12}\d*$/;
+function ii(e) {
+  var i = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 1e11;
+  return Zt.test(e) ? Math.round(e * i) / i : e;
+}
+var Kt = /^width|height|left|top|marginLeft|marginTop$/;
+function Y(e, i) {
+  var a = e.style;
+  D(i, function(t, o) {
+    Kt.test(o) && u(t) && (t = "".concat(t, "px")), a[o] = t;
+  });
+}
+function Jt(e, i) {
+  return e.classList ? e.classList.contains(i) : e.className.indexOf(i) > -1;
+}
+function j(e, i) {
+  if (i) {
+    if (u(e.length)) {
+      D(e, function(t) {
+        j(t, i);
+      });
+      return;
+    }
+    if (e.classList) {
+      e.classList.add(i);
+      return;
+    }
+    var a = e.className.trim();
+    a ? a.indexOf(i) < 0 && (e.className = "".concat(a, " ").concat(i)) : e.className = i;
+  }
+}
+function L(e, i) {
+  if (i) {
+    if (u(e.length)) {
+      D(e, function(a) {
+        L(a, i);
+      });
+      return;
+    }
+    if (e.classList) {
+      e.classList.remove(i);
+      return;
+    }
+    e.className.indexOf(i) >= 0 && (e.className = e.className.replace(i, ""));
+  }
+}
+function J(e, i, a) {
+  if (i) {
+    if (u(e.length)) {
+      D(e, function(t) {
+        J(t, i, a);
+      });
+      return;
+    }
+    a ? j(e, i) : L(e, i);
+  }
+}
+var ia = /([a-z\d])([A-Z])/g;
+function Si(e) {
+  return e.replace(ia, "$1-$2").toLowerCase();
+}
+function Ci(e, i) {
+  return Q(e[i]) ? e[i] : e.dataset ? e.dataset[i] : e.getAttribute("data-".concat(Si(i)));
+}
+function si(e, i, a) {
+  Q(a) ? e[i] = a : e.dataset ? e.dataset[i] = a : e.setAttribute("data-".concat(Si(i)), a);
+}
+function ta(e, i) {
+  if (Q(e[i]))
+    try {
+      delete e[i];
+    } catch {
+      e[i] = void 0;
+    }
+  else if (e.dataset)
+    try {
+      delete e.dataset[i];
+    } catch {
+      e.dataset[i] = void 0;
+    }
+  else
+    e.removeAttribute("data-".concat(Si(i)));
+}
+var gt = /\s\s*/, xt = function() {
+  var e = !1;
+  if (hi) {
+    var i = !1, a = function() {
+    }, t = Object.defineProperty({}, "once", {
+      get: function() {
+        return e = !0, i;
+      },
+      /**
+       * This setter can fix a `TypeError` in strict mode
+       * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Getter_only}
+       * @param {boolean} value - The value to set
+       */
+      set: function(n) {
+        i = n;
+      }
+    });
+    B.addEventListener("test", a, t), B.removeEventListener("test", a, t);
+  }
+  return e;
+}();
+function _(e, i, a) {
+  var t = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {}, o = a;
+  i.trim().split(gt).forEach(function(n) {
+    if (!xt) {
+      var p = e.listeners;
+      p && p[n] && p[n][a] && (o = p[n][a], delete p[n][a], Object.keys(p[n]).length === 0 && delete p[n], Object.keys(p).length === 0 && delete e.listeners);
+    }
+    e.removeEventListener(n, o, t);
+  });
+}
+function R(e, i, a) {
+  var t = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {}, o = a;
+  i.trim().split(gt).forEach(function(n) {
+    if (t.once && !xt) {
+      var p = e.listeners, c = p === void 0 ? {} : p;
+      o = function() {
+        delete c[n][a], e.removeEventListener(n, o, t);
+        for (var l = arguments.length, r = new Array(l), s = 0; s < l; s++)
+          r[s] = arguments[s];
+        a.apply(e, r);
+      }, c[n] || (c[n] = {}), c[n][a] && e.removeEventListener(n, c[n][a], t), c[n][a] = o, e.listeners = c;
+    }
+    e.addEventListener(n, o, t);
+  });
+}
+function ti(e, i, a) {
+  var t;
+  return A(Event) && A(CustomEvent) ? t = new CustomEvent(i, {
+    detail: a,
+    bubbles: !0,
+    cancelable: !0
+  }) : (t = document.createEvent("CustomEvent"), t.initCustomEvent(i, !0, !0, a)), e.dispatchEvent(t);
+}
+function bt(e) {
+  var i = e.getBoundingClientRect();
+  return {
+    left: i.left + (window.pageXOffset - document.documentElement.clientLeft),
+    top: i.top + (window.pageYOffset - document.documentElement.clientTop)
+  };
+}
+var xi = B.location, aa = /^(\w+:)\/\/([^:/?#]*):?(\d*)/i;
+function tt(e) {
+  var i = e.match(aa);
+  return i !== null && (i[1] !== xi.protocol || i[2] !== xi.hostname || i[3] !== xi.port);
+}
+function at(e) {
+  var i = "timestamp=".concat((/* @__PURE__ */ new Date()).getTime());
+  return e + (e.indexOf("?") === -1 ? "?" : "&") + i;
+}
+function pi(e) {
+  var i = e.rotate, a = e.scaleX, t = e.scaleY, o = e.translateX, n = e.translateY, p = [];
+  u(o) && o !== 0 && p.push("translateX(".concat(o, "px)")), u(n) && n !== 0 && p.push("translateY(".concat(n, "px)")), u(i) && i !== 0 && p.push("rotate(".concat(i, "deg)")), u(a) && a !== 1 && p.push("scaleX(".concat(a, ")")), u(t) && t !== 1 && p.push("scaleY(".concat(t, ")"));
+  var c = p.length ? p.join(" ") : "none";
+  return {
+    WebkitTransform: c,
+    msTransform: c,
+    transform: c
+  };
+}
+function ea(e) {
+  var i = pt({}, e), a = 0;
+  return D(e, function(t, o) {
+    delete i[o], D(i, function(n) {
+      var p = Math.abs(t.startX - n.startX), c = Math.abs(t.startY - n.startY), m = Math.abs(t.endX - n.endX), l = Math.abs(t.endY - n.endY), r = Math.sqrt(p * p + c * c), s = Math.sqrt(m * m + l * l), d = (s - r) / r;
+      Math.abs(d) > Math.abs(a) && (a = d);
+    });
+  }), a;
+}
+function di(e, i) {
+  var a = e.pageX, t = e.pageY, o = {
+    endX: a,
+    endY: t
+  };
+  return i ? o : pt({
+    startX: a,
+    startY: t
+  }, o);
+}
+function na(e) {
+  var i = 0, a = 0, t = 0;
+  return D(e, function(o) {
+    var n = o.startX, p = o.startY;
+    i += n, a += p, t += 1;
+  }), i /= t, a /= t, {
+    pageX: i,
+    pageY: a
+  };
+}
+function W(e) {
+  var i = e.aspectRatio, a = e.height, t = e.width, o = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : "contain", n = it(t), p = it(a);
+  if (n && p) {
+    var c = a * i;
+    o === "contain" && c > t || o === "cover" && c < t ? a = t / i : t = a * i;
+  } else
+    n ? a = t / i : p && (t = a * i);
+  return {
+    width: t,
+    height: a
+  };
+}
+function oa(e) {
+  var i = e.width, a = e.height, t = e.degree;
+  if (t = Math.abs(t) % 180, t === 90)
+    return {
+      width: a,
+      height: i
+    };
+  var o = t % 90 * Math.PI / 180, n = Math.sin(o), p = Math.cos(o), c = i * p + a * n, m = i * n + a * p;
+  return t > 90 ? {
+    width: m,
+    height: c
+  } : {
+    width: c,
+    height: m
+  };
+}
+function pa(e, i, a, t) {
+  var o = i.aspectRatio, n = i.naturalWidth, p = i.naturalHeight, c = i.rotate, m = c === void 0 ? 0 : c, l = i.scaleX, r = l === void 0 ? 1 : l, s = i.scaleY, d = s === void 0 ? 1 : s, v = a.aspectRatio, f = a.naturalWidth, b = a.naturalHeight, g = t.fillColor, E = g === void 0 ? "transparent" : g, z = t.imageSmoothingEnabled, k = z === void 0 ? !0 : z, P = t.imageSmoothingQuality, O = P === void 0 ? "low" : P, h = t.maxWidth, x = h === void 0 ? 1 / 0 : h, M = t.maxHeight, N = M === void 0 ? 1 / 0 : M, X = t.minWidth, U = X === void 0 ? 0 : X, V = t.minHeight, H = V === void 0 ? 0 : V, I = document.createElement("canvas"), C = I.getContext("2d"), $ = W({
+    aspectRatio: v,
+    width: x,
+    height: N
+  }), ci = W({
+    aspectRatio: v,
+    width: U,
+    height: H
+  }, "cover"), fi = Math.min($.width, Math.max(ci.width, f)), ui = Math.min($.height, Math.max(ci.height, b)), _i = W({
+    aspectRatio: o,
+    width: x,
+    height: N
+  }), Ii = W({
+    aspectRatio: o,
+    width: U,
+    height: H
+  }, "cover"), Li = Math.min(_i.width, Math.max(Ii.width, n)), Bi = Math.min(_i.height, Math.max(Ii.height, p)), Mt = [-Li / 2, -Bi / 2, Li, Bi];
+  return I.width = ii(fi), I.height = ii(ui), C.fillStyle = E, C.fillRect(0, 0, fi, ui), C.save(), C.translate(fi / 2, ui / 2), C.rotate(m * Math.PI / 180), C.scale(r, d), C.imageSmoothingEnabled = k, C.imageSmoothingQuality = O, C.drawImage.apply(C, [e].concat(rt(Mt.map(function(zt) {
+    return Math.floor(ii(zt));
+  })))), C.restore(), I;
+}
+var wt = String.fromCharCode;
+function ra(e, i, a) {
+  var t = "";
+  a += i;
+  for (var o = i; o < a; o += 1)
+    t += wt(e.getUint8(o));
+  return t;
+}
+var sa = /^data:.*,/;
+function ca(e) {
+  var i = e.replace(sa, ""), a = atob(i), t = new ArrayBuffer(a.length), o = new Uint8Array(t);
+  return D(o, function(n, p) {
+    o[p] = a.charCodeAt(p);
+  }), t;
+}
+function la(e, i) {
+  for (var a = [], t = 8192, o = new Uint8Array(e); o.length > 0; )
+    a.push(wt.apply(null, ut(o.subarray(0, t)))), o = o.subarray(t);
+  return "data:".concat(i, ";base64,").concat(btoa(a.join("")));
+}
+function da(e) {
+  var i = new DataView(e), a;
+  try {
+    var t, o, n;
+    if (i.getUint8(0) === 255 && i.getUint8(1) === 216)
+      for (var p = i.byteLength, c = 2; c + 1 < p; ) {
+        if (i.getUint8(c) === 255 && i.getUint8(c + 1) === 225) {
+          o = c;
+          break;
+        }
+        c += 1;
+      }
+    if (o) {
+      var m = o + 4, l = o + 10;
+      if (ra(i, m, 4) === "Exif") {
+        var r = i.getUint16(l);
+        if (t = r === 18761, (t || r === 19789) && i.getUint16(l + 2, t) === 42) {
+          var s = i.getUint32(l + 4, t);
+          s >= 8 && (n = l + s);
+        }
+      }
+    }
+    if (n) {
+      var d = i.getUint16(n, t), v, f;
+      for (f = 0; f < d; f += 1)
+        if (v = n + f * 12 + 2, i.getUint16(v, t) === 274) {
+          v += 8, a = i.getUint16(v, t), i.setUint16(v, 1, t);
+          break;
+        }
+    }
+  } catch {
+    a = 1;
+  }
+  return a;
+}
+function ma(e) {
+  var i = 0, a = 1, t = 1;
+  switch (e) {
+    case 2:
+      a = -1;
+      break;
+    case 3:
+      i = -180;
+      break;
+    case 4:
+      t = -1;
+      break;
+    case 5:
+      i = 90, t = -1;
+      break;
+    case 6:
+      i = 90;
+      break;
+    case 7:
+      i = 90, a = -1;
+      break;
+    case 8:
+      i = -90;
+      break;
+  }
+  return {
+    rotate: i,
+    scaleX: a,
+    scaleY: t
+  };
+}
+var ha = {
+  render: function() {
+    this.initContainer(), this.initCanvas(), this.initCropBox(), this.renderCanvas(), this.cropped && this.renderCropBox();
+  },
+  initContainer: function() {
+    var i = this.element, a = this.options, t = this.container, o = this.cropper, n = Number(a.minContainerWidth), p = Number(a.minContainerHeight);
+    j(o, T), L(i, T);
+    var c = {
+      width: Math.max(t.offsetWidth, n >= 0 ? n : vt),
+      height: Math.max(t.offsetHeight, p >= 0 ? p : ft)
+    };
+    this.containerData = c, Y(o, {
+      width: c.width,
+      height: c.height
+    }), j(i, T), L(o, T);
+  },
+  // Canvas (image wrapper)
+  initCanvas: function() {
+    var i = this.containerData, a = this.imageData, t = this.options.viewMode, o = Math.abs(a.rotate) % 180 === 90, n = o ? a.naturalHeight : a.naturalWidth, p = o ? a.naturalWidth : a.naturalHeight, c = n / p, m = i.width, l = i.height;
+    i.height * c > i.width ? t === 3 ? m = i.height * c : l = i.width / c : t === 3 ? l = i.width / c : m = i.height * c;
+    var r = {
+      aspectRatio: c,
+      naturalWidth: n,
+      naturalHeight: p,
+      width: m,
+      height: l
+    };
+    this.canvasData = r, this.limited = t === 1 || t === 2, this.limitCanvas(!0, !0), r.width = Math.min(Math.max(r.width, r.minWidth), r.maxWidth), r.height = Math.min(Math.max(r.height, r.minHeight), r.maxHeight), r.left = (i.width - r.width) / 2, r.top = (i.height - r.height) / 2, r.oldLeft = r.left, r.oldTop = r.top, this.initialCanvasData = y({}, r);
+  },
+  limitCanvas: function(i, a) {
+    var t = this.options, o = this.containerData, n = this.canvasData, p = this.cropBoxData, c = t.viewMode, m = n.aspectRatio, l = this.cropped && p;
+    if (i) {
+      var r = Number(t.minCanvasWidth) || 0, s = Number(t.minCanvasHeight) || 0;
+      c > 1 ? (r = Math.max(r, o.width), s = Math.max(s, o.height), c === 3 && (s * m > r ? r = s * m : s = r / m)) : c > 0 && (r ? r = Math.max(r, l ? p.width : 0) : s ? s = Math.max(s, l ? p.height : 0) : l && (r = p.width, s = p.height, s * m > r ? r = s * m : s = r / m));
+      var d = W({
+        aspectRatio: m,
+        width: r,
+        height: s
+      });
+      r = d.width, s = d.height, n.minWidth = r, n.minHeight = s, n.maxWidth = 1 / 0, n.maxHeight = 1 / 0;
+    }
+    if (a)
+      if (c > (l ? 0 : 1)) {
+        var v = o.width - n.width, f = o.height - n.height;
+        n.minLeft = Math.min(0, v), n.minTop = Math.min(0, f), n.maxLeft = Math.max(0, v), n.maxTop = Math.max(0, f), l && this.limited && (n.minLeft = Math.min(p.left, p.left + (p.width - n.width)), n.minTop = Math.min(p.top, p.top + (p.height - n.height)), n.maxLeft = p.left, n.maxTop = p.top, c === 2 && (n.width >= o.width && (n.minLeft = Math.min(0, v), n.maxLeft = Math.max(0, v)), n.height >= o.height && (n.minTop = Math.min(0, f), n.maxTop = Math.max(0, f))));
+      } else
+        n.minLeft = -n.width, n.minTop = -n.height, n.maxLeft = o.width, n.maxTop = o.height;
+  },
+  renderCanvas: function(i, a) {
+    var t = this.canvasData, o = this.imageData;
+    if (a) {
+      var n = oa({
+        width: o.naturalWidth * Math.abs(o.scaleX || 1),
+        height: o.naturalHeight * Math.abs(o.scaleY || 1),
+        degree: o.rotate || 0
+      }), p = n.width, c = n.height, m = t.width * (p / t.naturalWidth), l = t.height * (c / t.naturalHeight);
+      t.left -= (m - t.width) / 2, t.top -= (l - t.height) / 2, t.width = m, t.height = l, t.aspectRatio = p / c, t.naturalWidth = p, t.naturalHeight = c, this.limitCanvas(!0, !1);
+    }
+    (t.width > t.maxWidth || t.width < t.minWidth) && (t.left = t.oldLeft), (t.height > t.maxHeight || t.height < t.minHeight) && (t.top = t.oldTop), t.width = Math.min(Math.max(t.width, t.minWidth), t.maxWidth), t.height = Math.min(Math.max(t.height, t.minHeight), t.maxHeight), this.limitCanvas(!1, !0), t.left = Math.min(Math.max(t.left, t.minLeft), t.maxLeft), t.top = Math.min(Math.max(t.top, t.minTop), t.maxTop), t.oldLeft = t.left, t.oldTop = t.top, Y(this.canvas, y({
+      width: t.width,
+      height: t.height
+    }, pi({
+      translateX: t.left,
+      translateY: t.top
+    }))), this.renderImage(i), this.cropped && this.limited && this.limitCropBox(!0, !0);
+  },
+  renderImage: function(i) {
+    var a = this.canvasData, t = this.imageData, o = t.naturalWidth * (a.width / a.naturalWidth), n = t.naturalHeight * (a.height / a.naturalHeight);
+    y(t, {
+      width: o,
+      height: n,
+      left: (a.width - o) / 2,
+      top: (a.height - n) / 2
+    }), Y(this.image, y({
+      width: t.width,
+      height: t.height
+    }, pi(y({
+      translateX: t.left,
+      translateY: t.top
+    }, t)))), i && this.output();
+  },
+  initCropBox: function() {
+    var i = this.options, a = this.canvasData, t = i.aspectRatio || i.initialAspectRatio, o = Number(i.autoCropArea) || 0.8, n = {
+      width: a.width,
+      height: a.height
+    };
+    t && (a.height * t > a.width ? n.height = n.width / t : n.width = n.height * t), this.cropBoxData = n, this.limitCropBox(!0, !0), n.width = Math.min(Math.max(n.width, n.minWidth), n.maxWidth), n.height = Math.min(Math.max(n.height, n.minHeight), n.maxHeight), n.width = Math.max(n.minWidth, n.width * o), n.height = Math.max(n.minHeight, n.height * o), n.left = a.left + (a.width - n.width) / 2, n.top = a.top + (a.height - n.height) / 2, n.oldLeft = n.left, n.oldTop = n.top, this.initialCropBoxData = y({}, n);
+  },
+  limitCropBox: function(i, a) {
+    var t = this.options, o = this.containerData, n = this.canvasData, p = this.cropBoxData, c = this.limited, m = t.aspectRatio;
+    if (i) {
+      var l = Number(t.minCropBoxWidth) || 0, r = Number(t.minCropBoxHeight) || 0, s = c ? Math.min(o.width, n.width, n.width + n.left, o.width - n.left) : o.width, d = c ? Math.min(o.height, n.height, n.height + n.top, o.height - n.top) : o.height;
+      l = Math.min(l, o.width), r = Math.min(r, o.height), m && (l && r ? r * m > l ? r = l / m : l = r * m : l ? r = l / m : r && (l = r * m), d * m > s ? d = s / m : s = d * m), p.minWidth = Math.min(l, s), p.minHeight = Math.min(r, d), p.maxWidth = s, p.maxHeight = d;
+    }
+    a && (c ? (p.minLeft = Math.max(0, n.left), p.minTop = Math.max(0, n.top), p.maxLeft = Math.min(o.width, n.left + n.width) - p.width, p.maxTop = Math.min(o.height, n.top + n.height) - p.height) : (p.minLeft = 0, p.minTop = 0, p.maxLeft = o.width - p.width, p.maxTop = o.height - p.height));
+  },
+  renderCropBox: function() {
+    var i = this.options, a = this.containerData, t = this.cropBoxData;
+    (t.width > t.maxWidth || t.width < t.minWidth) && (t.left = t.oldLeft), (t.height > t.maxHeight || t.height < t.minHeight) && (t.top = t.oldTop), t.width = Math.min(Math.max(t.width, t.minWidth), t.maxWidth), t.height = Math.min(Math.max(t.height, t.minHeight), t.maxHeight), this.limitCropBox(!1, !0), t.left = Math.min(Math.max(t.left, t.minLeft), t.maxLeft), t.top = Math.min(Math.max(t.top, t.minTop), t.maxTop), t.oldLeft = t.left, t.oldTop = t.top, i.movable && i.cropBoxMovable && si(this.face, ri, t.width >= a.width && t.height >= a.height ? lt : Oi), Y(this.cropBox, y({
+      width: t.width,
+      height: t.height
+    }, pi({
+      translateX: t.left,
+      translateY: t.top
+    }))), this.cropped && this.limited && this.limitCanvas(!0, !0), this.disabled || this.output();
+  },
+  output: function() {
+    this.preview(), ti(this.element, Di, this.getData());
+  }
+}, va = {
+  initPreview: function() {
+    var i = this.element, a = this.crossOrigin, t = this.options.preview, o = a ? this.crossOriginUrl : this.url, n = i.alt || "The image to preview", p = document.createElement("img");
+    if (a && (p.crossOrigin = a), p.src = o, p.alt = n, this.viewBox.appendChild(p), this.viewBoxImage = p, !!t) {
+      var c = t;
+      typeof t == "string" ? c = i.ownerDocument.querySelectorAll(t) : t.querySelector && (c = [t]), this.previews = c, D(c, function(m) {
+        var l = document.createElement("img");
+        si(m, li, {
+          width: m.offsetWidth,
+          height: m.offsetHeight,
+          html: m.innerHTML
+        }), a && (l.crossOrigin = a), l.src = o, l.alt = n, l.style.cssText = 'display:block;width:100%;height:auto;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;image-orientation:0deg!important;"', m.innerHTML = "", m.appendChild(l);
+      });
+    }
+  },
+  resetPreview: function() {
+    D(this.previews, function(i) {
+      var a = Ci(i, li);
+      Y(i, {
+        width: a.width,
+        height: a.height
+      }), i.innerHTML = a.html, ta(i, li);
+    });
+  },
+  preview: function() {
+    var i = this.imageData, a = this.canvasData, t = this.cropBoxData, o = t.width, n = t.height, p = i.width, c = i.height, m = t.left - a.left - i.left, l = t.top - a.top - i.top;
+    !this.cropped || this.disabled || (Y(this.viewBoxImage, y({
+      width: p,
+      height: c
+    }, pi(y({
+      translateX: -m,
+      translateY: -l
+    }, i)))), D(this.previews, function(r) {
+      var s = Ci(r, li), d = s.width, v = s.height, f = d, b = v, g = 1;
+      o && (g = d / o, b = n * g), n && b > v && (g = v / n, f = o * g, b = v), Y(r, {
+        width: f,
+        height: b
+      }), Y(r.getElementsByTagName("img")[0], y({
+        width: p * g,
+        height: c * g
+      }, pi(y({
+        translateX: -m * g,
+        translateY: -l * g
+      }, i))));
+    }));
+  }
+}, fa = {
+  bind: function() {
+    var i = this.element, a = this.options, t = this.cropper;
+    A(a.cropstart) && R(i, zi, a.cropstart), A(a.cropmove) && R(i, Mi, a.cropmove), A(a.cropend) && R(i, Ei, a.cropend), A(a.crop) && R(i, Di, a.crop), A(a.zoom) && R(i, ji, a.zoom), R(t, Vi, this.onCropStart = this.cropStart.bind(this)), a.zoomable && a.zoomOnWheel && R(t, Zi, this.onWheel = this.wheel.bind(this), {
+      passive: !1,
+      capture: !0
+    }), a.toggleDragModeOnDblclick && R(t, Ui, this.onDblclick = this.dblclick.bind(this)), R(i.ownerDocument, $i, this.onCropMove = this.cropMove.bind(this)), R(i.ownerDocument, Gi, this.onCropEnd = this.cropEnd.bind(this)), a.responsive && R(window, Qi, this.onResize = this.resize.bind(this));
+  },
+  unbind: function() {
+    var i = this.element, a = this.options, t = this.cropper;
+    A(a.cropstart) && _(i, zi, a.cropstart), A(a.cropmove) && _(i, Mi, a.cropmove), A(a.cropend) && _(i, Ei, a.cropend), A(a.crop) && _(i, Di, a.crop), A(a.zoom) && _(i, ji, a.zoom), _(t, Vi, this.onCropStart), a.zoomable && a.zoomOnWheel && _(t, Zi, this.onWheel, {
+      passive: !1,
+      capture: !0
+    }), a.toggleDragModeOnDblclick && _(t, Ui, this.onDblclick), _(i.ownerDocument, $i, this.onCropMove), _(i.ownerDocument, Gi, this.onCropEnd), a.responsive && _(window, Qi, this.onResize);
+  }
+}, ua = {
+  resize: function() {
+    if (!this.disabled) {
+      var i = this.options, a = this.container, t = this.containerData, o = a.offsetWidth / t.width, n = a.offsetHeight / t.height, p = Math.abs(o - 1) > Math.abs(n - 1) ? o : n;
+      if (p !== 1) {
+        var c, m;
+        i.restore && (c = this.getCanvasData(), m = this.getCropBoxData()), this.render(), i.restore && (this.setCanvasData(D(c, function(l, r) {
+          c[r] = l * p;
+        })), this.setCropBoxData(D(m, function(l, r) {
+          m[r] = l * p;
+        })));
+      }
+    }
+  },
+  dblclick: function() {
+    this.disabled || this.options.dragMode === ht || this.setDragMode(Jt(this.dragBox, yi) ? mt : Ni);
+  },
+  wheel: function(i) {
+    var a = this, t = Number(this.options.wheelZoomRatio) || 0.1, o = 1;
+    this.disabled || (i.preventDefault(), !this.wheeling && (this.wheeling = !0, setTimeout(function() {
+      a.wheeling = !1;
+    }, 50), i.deltaY ? o = i.deltaY > 0 ? 1 : -1 : i.wheelDelta ? o = -i.wheelDelta / 120 : i.detail && (o = i.detail > 0 ? 1 : -1), this.zoom(-o * t, i)));
+  },
+  cropStart: function(i) {
+    var a = i.buttons, t = i.button;
+    if (!(this.disabled || (i.type === "mousedown" || i.type === "pointerdown" && i.pointerType === "mouse") && // No primary button (Usually the left button)
+    (u(a) && a !== 1 || u(t) && t !== 0 || i.ctrlKey))) {
+      var o = this.options, n = this.pointers, p;
+      i.changedTouches ? D(i.changedTouches, function(c) {
+        n[c.identifier] = di(c);
+      }) : n[i.pointerId || 0] = di(i), Object.keys(n).length > 1 && o.zoomable && o.zoomOnTouch ? p = dt : p = Ci(i.target, ri), Yt.test(p) && ti(this.element, zi, {
+        originalEvent: i,
+        action: p
+      }) !== !1 && (i.preventDefault(), this.action = p, this.cropping = !1, p === ct && (this.cropping = !0, j(this.dragBox, mi)));
+    }
+  },
+  cropMove: function(i) {
+    var a = this.action;
+    if (!(this.disabled || !a)) {
+      var t = this.pointers;
+      i.preventDefault(), ti(this.element, Mi, {
+        originalEvent: i,
+        action: a
+      }) !== !1 && (i.changedTouches ? D(i.changedTouches, function(o) {
+        y(t[o.identifier] || {}, di(o, !0));
+      }) : y(t[i.pointerId || 0] || {}, di(i, !0)), this.change(i));
+    }
+  },
+  cropEnd: function(i) {
+    if (!this.disabled) {
+      var a = this.action, t = this.pointers;
+      i.changedTouches ? D(i.changedTouches, function(o) {
+        delete t[o.identifier];
+      }) : delete t[i.pointerId || 0], a && (i.preventDefault(), Object.keys(t).length || (this.action = ""), this.cropping && (this.cropping = !1, J(this.dragBox, mi, this.cropped && this.options.modal)), ti(this.element, Ei, {
+        originalEvent: i,
+        action: a
+      }));
+    }
+  }
+}, ga = {
+  change: function(i) {
+    var a = this.options, t = this.canvasData, o = this.containerData, n = this.cropBoxData, p = this.pointers, c = this.action, m = a.aspectRatio, l = n.left, r = n.top, s = n.width, d = n.height, v = l + s, f = r + d, b = 0, g = 0, E = o.width, z = o.height, k = !0, P;
+    !m && i.shiftKey && (m = s && d ? s / d : 1), this.limited && (b = n.minLeft, g = n.minTop, E = b + Math.min(o.width, t.width, t.left + t.width), z = g + Math.min(o.height, t.height, t.top + t.height));
+    var O = p[Object.keys(p)[0]], h = {
+      x: O.endX - O.startX,
+      y: O.endY - O.startY
+    }, x = function(N) {
+      switch (N) {
+        case G:
+          v + h.x > E && (h.x = E - v);
+          break;
+        case F:
+          l + h.x < b && (h.x = b - l);
+          break;
+        case q:
+          r + h.y < g && (h.y = g - r);
+          break;
+        case Z:
+          f + h.y > z && (h.y = z - f);
+          break;
+      }
+    };
+    switch (c) {
+      case Oi:
+        l += h.x, r += h.y;
+        break;
+      case G:
+        if (h.x >= 0 && (v >= E || m && (r <= g || f >= z))) {
+          k = !1;
+          break;
+        }
+        x(G), s += h.x, s < 0 && (c = F, s = -s, l -= s), m && (d = s / m, r += (n.height - d) / 2);
+        break;
+      case q:
+        if (h.y <= 0 && (r <= g || m && (l <= b || v >= E))) {
+          k = !1;
+          break;
+        }
+        x(q), d -= h.y, r += h.y, d < 0 && (c = Z, d = -d, r -= d), m && (s = d * m, l += (n.width - s) / 2);
+        break;
+      case F:
+        if (h.x <= 0 && (l <= b || m && (r <= g || f >= z))) {
+          k = !1;
+          break;
+        }
+        x(F), s -= h.x, l += h.x, s < 0 && (c = G, s = -s, l -= s), m && (d = s / m, r += (n.height - d) / 2);
+        break;
+      case Z:
+        if (h.y >= 0 && (f >= z || m && (l <= b || v >= E))) {
+          k = !1;
+          break;
+        }
+        x(Z), d += h.y, d < 0 && (c = q, d = -d, r -= d), m && (s = d * m, l += (n.width - s) / 2);
+        break;
+      case ai:
+        if (m) {
+          if (h.y <= 0 && (r <= g || v >= E)) {
+            k = !1;
+            break;
+          }
+          x(q), d -= h.y, r += h.y, s = d * m;
+        } else
+          x(q), x(G), h.x >= 0 ? v < E ? s += h.x : h.y <= 0 && r <= g && (k = !1) : s += h.x, h.y <= 0 ? r > g && (d -= h.y, r += h.y) : (d -= h.y, r += h.y);
+        s < 0 && d < 0 ? (c = oi, d = -d, s = -s, r -= d, l -= s) : s < 0 ? (c = ei, s = -s, l -= s) : d < 0 && (c = ni, d = -d, r -= d);
+        break;
+      case ei:
+        if (m) {
+          if (h.y <= 0 && (r <= g || l <= b)) {
+            k = !1;
+            break;
+          }
+          x(q), d -= h.y, r += h.y, s = d * m, l += n.width - s;
+        } else
+          x(q), x(F), h.x <= 0 ? l > b ? (s -= h.x, l += h.x) : h.y <= 0 && r <= g && (k = !1) : (s -= h.x, l += h.x), h.y <= 0 ? r > g && (d -= h.y, r += h.y) : (d -= h.y, r += h.y);
+        s < 0 && d < 0 ? (c = ni, d = -d, s = -s, r -= d, l -= s) : s < 0 ? (c = ai, s = -s, l -= s) : d < 0 && (c = oi, d = -d, r -= d);
+        break;
+      case oi:
+        if (m) {
+          if (h.x <= 0 && (l <= b || f >= z)) {
+            k = !1;
+            break;
+          }
+          x(F), s -= h.x, l += h.x, d = s / m;
+        } else
+          x(Z), x(F), h.x <= 0 ? l > b ? (s -= h.x, l += h.x) : h.y >= 0 && f >= z && (k = !1) : (s -= h.x, l += h.x), h.y >= 0 ? f < z && (d += h.y) : d += h.y;
+        s < 0 && d < 0 ? (c = ai, d = -d, s = -s, r -= d, l -= s) : s < 0 ? (c = ni, s = -s, l -= s) : d < 0 && (c = ei, d = -d, r -= d);
+        break;
+      case ni:
+        if (m) {
+          if (h.x >= 0 && (v >= E || f >= z)) {
+            k = !1;
+            break;
+          }
+          x(G), s += h.x, d = s / m;
+        } else
+          x(Z), x(G), h.x >= 0 ? v < E ? s += h.x : h.y >= 0 && f >= z && (k = !1) : s += h.x, h.y >= 0 ? f < z && (d += h.y) : d += h.y;
+        s < 0 && d < 0 ? (c = ei, d = -d, s = -s, r -= d, l -= s) : s < 0 ? (c = oi, s = -s, l -= s) : d < 0 && (c = ai, d = -d, r -= d);
+        break;
+      case lt:
+        this.move(h.x, h.y), k = !1;
+        break;
+      case dt:
+        this.zoom(ea(p), i), k = !1;
+        break;
+      case ct:
+        if (!h.x || !h.y) {
+          k = !1;
+          break;
+        }
+        P = bt(this.cropper), l = O.startX - P.left, r = O.startY - P.top, s = n.minWidth, d = n.minHeight, h.x > 0 ? c = h.y > 0 ? ni : ai : h.x < 0 && (l -= s, c = h.y > 0 ? oi : ei), h.y < 0 && (r -= d), this.cropped || (L(this.cropBox, T), this.cropped = !0, this.limited && this.limitCropBox(!0, !0));
+        break;
+    }
+    k && (n.width = s, n.height = d, n.left = l, n.top = r, this.action = c, this.renderCropBox()), D(p, function(M) {
+      M.startX = M.endX, M.startY = M.endY;
+    });
+  }
+}, xa = {
+  // Show the crop box manually
+  crop: function() {
+    return this.ready && !this.cropped && !this.disabled && (this.cropped = !0, this.limitCropBox(!0, !0), this.options.modal && j(this.dragBox, mi), L(this.cropBox, T), this.setCropBoxData(this.initialCropBoxData)), this;
+  },
+  // Reset the image and crop box to their initial states
+  reset: function() {
+    return this.ready && !this.disabled && (this.imageData = y({}, this.initialImageData), this.canvasData = y({}, this.initialCanvasData), this.cropBoxData = y({}, this.initialCropBoxData), this.renderCanvas(), this.cropped && this.renderCropBox()), this;
+  },
+  // Clear the crop box
+  clear: function() {
+    return this.cropped && !this.disabled && (y(this.cropBoxData, {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0
+    }), this.cropped = !1, this.renderCropBox(), this.limitCanvas(!0, !0), this.renderCanvas(), L(this.dragBox, mi), j(this.cropBox, T)), this;
+  },
+  /**
+   * Replace the image's src and rebuild the cropper
+   * @param {string} url - The new URL.
+   * @param {boolean} [hasSameSize] - Indicate if the new image has the same size as the old one.
+   * @returns {Cropper} this
+   */
+  replace: function(i) {
+    var a = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : !1;
+    return !this.disabled && i && (this.isImg && (this.element.src = i), a ? (this.url = i, this.image.src = i, this.ready && (this.viewBoxImage.src = i, D(this.previews, function(t) {
+      t.getElementsByTagName("img")[0].src = i;
+    }))) : (this.isImg && (this.replaced = !0), this.options.data = null, this.uncreate(), this.load(i))), this;
+  },
+  // Enable (unfreeze) the cropper
+  enable: function() {
+    return this.ready && this.disabled && (this.disabled = !1, L(this.cropper, Yi)), this;
+  },
+  // Disable (freeze) the cropper
+  disable: function() {
+    return this.ready && !this.disabled && (this.disabled = !0, j(this.cropper, Yi)), this;
+  },
+  /**
+   * Destroy the cropper and remove the instance from the image
+   * @returns {Cropper} this
+   */
+  destroy: function() {
+    var i = this.element;
+    return i[w] ? (i[w] = void 0, this.isImg && this.replaced && (i.src = this.originalUrl), this.uncreate(), this) : this;
+  },
+  /**
+   * Move the canvas with relative offsets
+   * @param {number} offsetX - The relative offset distance on the x-axis.
+   * @param {number} [offsetY=offsetX] - The relative offset distance on the y-axis.
+   * @returns {Cropper} this
+   */
+  move: function(i) {
+    var a = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : i, t = this.canvasData, o = t.left, n = t.top;
+    return this.moveTo(gi(i) ? i : o + Number(i), gi(a) ? a : n + Number(a));
+  },
+  /**
+   * Move the canvas to an absolute point
+   * @param {number} x - The x-axis coordinate.
+   * @param {number} [y=x] - The y-axis coordinate.
+   * @returns {Cropper} this
+   */
+  moveTo: function(i) {
+    var a = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : i, t = this.canvasData, o = !1;
+    return i = Number(i), a = Number(a), this.ready && !this.disabled && this.options.movable && (u(i) && (t.left = i, o = !0), u(a) && (t.top = a, o = !0), o && this.renderCanvas(!0)), this;
+  },
+  /**
+   * Zoom the canvas with a relative ratio
+   * @param {number} ratio - The target ratio.
+   * @param {Event} _originalEvent - The original event if any.
+   * @returns {Cropper} this
+   */
+  zoom: function(i, a) {
+    var t = this.canvasData;
+    return i = Number(i), i < 0 ? i = 1 / (1 - i) : i = 1 + i, this.zoomTo(t.width * i / t.naturalWidth, null, a);
+  },
+  /**
+   * Zoom the canvas to an absolute ratio
+   * @param {number} ratio - The target ratio.
+   * @param {Object} pivot - The zoom pivot point coordinate.
+   * @param {Event} _originalEvent - The original event if any.
+   * @returns {Cropper} this
+   */
+  zoomTo: function(i, a, t) {
+    var o = this.options, n = this.canvasData, p = n.width, c = n.height, m = n.naturalWidth, l = n.naturalHeight;
+    if (i = Number(i), i >= 0 && this.ready && !this.disabled && o.zoomable) {
+      var r = m * i, s = l * i;
+      if (ti(this.element, ji, {
+        ratio: i,
+        oldRatio: p / m,
+        originalEvent: t
+      }) === !1)
+        return this;
+      if (t) {
+        var d = this.pointers, v = bt(this.cropper), f = d && Object.keys(d).length ? na(d) : {
+          pageX: t.pageX,
+          pageY: t.pageY
+        };
+        n.left -= (r - p) * ((f.pageX - v.left - n.left) / p), n.top -= (s - c) * ((f.pageY - v.top - n.top) / c);
+      } else
+        K(a) && u(a.x) && u(a.y) ? (n.left -= (r - p) * ((a.x - n.left) / p), n.top -= (s - c) * ((a.y - n.top) / c)) : (n.left -= (r - p) / 2, n.top -= (s - c) / 2);
+      n.width = r, n.height = s, this.renderCanvas(!0);
+    }
+    return this;
+  },
+  /**
+   * Rotate the canvas with a relative degree
+   * @param {number} degree - The rotate degree.
+   * @returns {Cropper} this
+   */
+  rotate: function(i) {
+    return this.rotateTo((this.imageData.rotate || 0) + Number(i));
+  },
+  /**
+   * Rotate the canvas to an absolute degree
+   * @param {number} degree - The rotate degree.
+   * @returns {Cropper} this
+   */
+  rotateTo: function(i) {
+    return i = Number(i), u(i) && this.ready && !this.disabled && this.options.rotatable && (this.imageData.rotate = i % 360, this.renderCanvas(!0, !0)), this;
+  },
+  /**
+   * Scale the image on the x-axis.
+   * @param {number} scaleX - The scale ratio on the x-axis.
+   * @returns {Cropper} this
+   */
+  scaleX: function(i) {
+    var a = this.imageData.scaleY;
+    return this.scale(i, u(a) ? a : 1);
+  },
+  /**
+   * Scale the image on the y-axis.
+   * @param {number} scaleY - The scale ratio on the y-axis.
+   * @returns {Cropper} this
+   */
+  scaleY: function(i) {
+    var a = this.imageData.scaleX;
+    return this.scale(u(a) ? a : 1, i);
+  },
+  /**
+   * Scale the image
+   * @param {number} scaleX - The scale ratio on the x-axis.
+   * @param {number} [scaleY=scaleX] - The scale ratio on the y-axis.
+   * @returns {Cropper} this
+   */
+  scale: function(i) {
+    var a = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : i, t = this.imageData, o = !1;
+    return i = Number(i), a = Number(a), this.ready && !this.disabled && this.options.scalable && (u(i) && (t.scaleX = i, o = !0), u(a) && (t.scaleY = a, o = !0), o && this.renderCanvas(!0, !0)), this;
+  },
+  /**
+   * Get the cropped area position and size data (base on the original image)
+   * @param {boolean} [rounded=false] - Indicate if round the data values or not.
+   * @returns {Object} The result cropped data.
+   */
+  getData: function() {
+    var i = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : !1, a = this.options, t = this.imageData, o = this.canvasData, n = this.cropBoxData, p;
+    if (this.ready && this.cropped) {
+      p = {
+        x: n.left - o.left,
+        y: n.top - o.top,
+        width: n.width,
+        height: n.height
+      };
+      var c = t.width / t.naturalWidth;
+      if (D(p, function(r, s) {
+        p[s] = r / c;
+      }), i) {
+        var m = Math.round(p.y + p.height), l = Math.round(p.x + p.width);
+        p.x = Math.round(p.x), p.y = Math.round(p.y), p.width = l - p.x, p.height = m - p.y;
+      }
+    } else
+      p = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0
+      };
+    return a.rotatable && (p.rotate = t.rotate || 0), a.scalable && (p.scaleX = t.scaleX || 1, p.scaleY = t.scaleY || 1), p;
+  },
+  /**
+   * Set the cropped area position and size with new data
+   * @param {Object} data - The new data.
+   * @returns {Cropper} this
+   */
+  setData: function(i) {
+    var a = this.options, t = this.imageData, o = this.canvasData, n = {};
+    if (this.ready && !this.disabled && K(i)) {
+      var p = !1;
+      a.rotatable && u(i.rotate) && i.rotate !== t.rotate && (t.rotate = i.rotate, p = !0), a.scalable && (u(i.scaleX) && i.scaleX !== t.scaleX && (t.scaleX = i.scaleX, p = !0), u(i.scaleY) && i.scaleY !== t.scaleY && (t.scaleY = i.scaleY, p = !0)), p && this.renderCanvas(!0, !0);
+      var c = t.width / t.naturalWidth;
+      u(i.x) && (n.left = i.x * c + o.left), u(i.y) && (n.top = i.y * c + o.top), u(i.width) && (n.width = i.width * c), u(i.height) && (n.height = i.height * c), this.setCropBoxData(n);
+    }
+    return this;
+  },
+  /**
+   * Get the container size data.
+   * @returns {Object} The result container data.
+   */
+  getContainerData: function() {
+    return this.ready ? y({}, this.containerData) : {};
+  },
+  /**
+   * Get the image position and size data.
+   * @returns {Object} The result image data.
+   */
+  getImageData: function() {
+    return this.sized ? y({}, this.imageData) : {};
+  },
+  /**
+   * Get the canvas position and size data.
+   * @returns {Object} The result canvas data.
+   */
+  getCanvasData: function() {
+    var i = this.canvasData, a = {};
+    return this.ready && D(["left", "top", "width", "height", "naturalWidth", "naturalHeight"], function(t) {
+      a[t] = i[t];
+    }), a;
+  },
+  /**
+   * Set the canvas position and size with new data.
+   * @param {Object} data - The new canvas data.
+   * @returns {Cropper} this
+   */
+  setCanvasData: function(i) {
+    var a = this.canvasData, t = a.aspectRatio;
+    return this.ready && !this.disabled && K(i) && (u(i.left) && (a.left = i.left), u(i.top) && (a.top = i.top), u(i.width) ? (a.width = i.width, a.height = i.width / t) : u(i.height) && (a.height = i.height, a.width = i.height * t), this.renderCanvas(!0)), this;
+  },
+  /**
+   * Get the crop box position and size data.
+   * @returns {Object} The result crop box data.
+   */
+  getCropBoxData: function() {
+    var i = this.cropBoxData, a;
+    return this.ready && this.cropped && (a = {
+      left: i.left,
+      top: i.top,
+      width: i.width,
+      height: i.height
+    }), a || {};
+  },
+  /**
+   * Set the crop box position and size with new data.
+   * @param {Object} data - The new crop box data.
+   * @returns {Cropper} this
+   */
+  setCropBoxData: function(i) {
+    var a = this.cropBoxData, t = this.options.aspectRatio, o, n;
+    return this.ready && this.cropped && !this.disabled && K(i) && (u(i.left) && (a.left = i.left), u(i.top) && (a.top = i.top), u(i.width) && i.width !== a.width && (o = !0, a.width = i.width), u(i.height) && i.height !== a.height && (n = !0, a.height = i.height), t && (o ? a.height = a.width / t : n && (a.width = a.height * t)), this.renderCropBox()), this;
+  },
+  /**
+   * Get a canvas drawn the cropped image.
+   * @param {Object} [options={}] - The config options.
+   * @returns {HTMLCanvasElement} - The result canvas.
+   */
+  getCroppedCanvas: function() {
+    var i = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+    if (!this.ready || !window.HTMLCanvasElement)
+      return null;
+    var a = this.canvasData, t = pa(this.image, this.imageData, a, i);
+    if (!this.cropped)
+      return t;
+    var o = this.getData(i.rounded), n = o.x, p = o.y, c = o.width, m = o.height, l = t.width / Math.floor(a.naturalWidth);
+    l !== 1 && (n *= l, p *= l, c *= l, m *= l);
+    var r = c / m, s = W({
+      aspectRatio: r,
+      width: i.maxWidth || 1 / 0,
+      height: i.maxHeight || 1 / 0
+    }), d = W({
+      aspectRatio: r,
+      width: i.minWidth || 0,
+      height: i.minHeight || 0
+    }, "cover"), v = W({
+      aspectRatio: r,
+      width: i.width || (l !== 1 ? t.width : c),
+      height: i.height || (l !== 1 ? t.height : m)
+    }), f = v.width, b = v.height;
+    f = Math.min(s.width, Math.max(d.width, f)), b = Math.min(s.height, Math.max(d.height, b));
+    var g = document.createElement("canvas"), E = g.getContext("2d");
+    g.width = ii(f), g.height = ii(b), E.fillStyle = i.fillColor || "transparent", E.fillRect(0, 0, f, b);
+    var z = i.imageSmoothingEnabled, k = z === void 0 ? !0 : z, P = i.imageSmoothingQuality;
+    E.imageSmoothingEnabled = k, P && (E.imageSmoothingQuality = P);
+    var O = t.width, h = t.height, x = n, M = p, N, X, U, V, H, I;
+    x <= -c || x > O ? (x = 0, N = 0, U = 0, H = 0) : x <= 0 ? (U = -x, x = 0, N = Math.min(O, c + x), H = N) : x <= O && (U = 0, N = Math.min(c, O - x), H = N), N <= 0 || M <= -m || M > h ? (M = 0, X = 0, V = 0, I = 0) : M <= 0 ? (V = -M, M = 0, X = Math.min(h, m + M), I = X) : M <= h && (V = 0, X = Math.min(m, h - M), I = X);
+    var C = [x, M, N, X];
+    if (H > 0 && I > 0) {
+      var $ = f / c;
+      C.push(U * $, V * $, H * $, I * $);
+    }
+    return E.drawImage.apply(E, [t].concat(rt(C.map(function(ci) {
+      return Math.floor(ii(ci));
+    })))), g;
+  },
+  /**
+   * Change the aspect ratio of the crop box.
+   * @param {number} aspectRatio - The new aspect ratio.
+   * @returns {Cropper} this
+   */
+  setAspectRatio: function(i) {
+    var a = this.options;
+    return !this.disabled && !gi(i) && (a.aspectRatio = Math.max(0, i) || NaN, this.ready && (this.initCropBox(), this.cropped && this.renderCropBox())), this;
+  },
+  /**
+   * Change the drag mode.
+   * @param {string} mode - The new drag mode.
+   * @returns {Cropper} this
+   */
+  setDragMode: function(i) {
+    var a = this.options, t = this.dragBox, o = this.face;
+    if (this.ready && !this.disabled) {
+      var n = i === Ni, p = a.movable && i === mt;
+      i = n || p ? i : ht, a.dragMode = i, si(t, ri, i), J(t, yi, n), J(t, ki, p), a.cropBoxMovable || (si(o, ri, i), J(o, yi, n), J(o, ki, p));
+    }
+    return this;
+  }
+}, ba = B.Cropper, yt = /* @__PURE__ */ function() {
+  function e(i) {
+    var a = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+    if (Ot(this, e), !i || !Vt.test(i.tagName))
+      throw new Error("The first argument is required and must be an <img> or <canvas> element.");
+    this.element = i, this.options = y({}, Ji, K(a) && a), this.cropped = !1, this.disabled = !1, this.pointers = {}, this.ready = !1, this.reloading = !1, this.replaced = !1, this.sized = !1, this.sizing = !1, this.init();
+  }
+  return Nt(e, [{
+    key: "init",
+    value: function() {
+      var a = this.element, t = a.tagName.toLowerCase(), o;
+      if (!a[w]) {
+        if (a[w] = this, t === "img") {
+          if (this.isImg = !0, o = a.getAttribute("src") || "", this.originalUrl = o, !o)
+            return;
+          o = a.src;
+        } else
+          t === "canvas" && window.HTMLCanvasElement && (o = a.toDataURL());
+        this.load(o);
+      }
+    }
+  }, {
+    key: "load",
+    value: function(a) {
+      var t = this;
+      if (a) {
+        this.url = a, this.imageData = {};
+        var o = this.element, n = this.options;
+        if (!n.rotatable && !n.scalable && (n.checkOrientation = !1), !n.checkOrientation || !window.ArrayBuffer) {
+          this.clone();
+          return;
+        }
+        if (Wt.test(a)) {
+          Ut.test(a) ? this.read(ca(a)) : this.clone();
+          return;
+        }
+        var p = new XMLHttpRequest(), c = this.clone.bind(this);
+        this.reloading = !0, this.xhr = p, p.onabort = c, p.onerror = c, p.ontimeout = c, p.onprogress = function() {
+          p.getResponseHeader("content-type") !== Ki && p.abort();
+        }, p.onload = function() {
+          t.read(p.response);
+        }, p.onloadend = function() {
+          t.reloading = !1, t.xhr = null;
+        }, n.checkCrossOrigin && tt(a) && o.crossOrigin && (a = at(a)), p.open("GET", a, !0), p.responseType = "arraybuffer", p.withCredentials = o.crossOrigin === "use-credentials", p.send();
+      }
+    }
+  }, {
+    key: "read",
+    value: function(a) {
+      var t = this.options, o = this.imageData, n = da(a), p = 0, c = 1, m = 1;
+      if (n > 1) {
+        this.url = la(a, Ki);
+        var l = ma(n);
+        p = l.rotate, c = l.scaleX, m = l.scaleY;
+      }
+      t.rotatable && (o.rotate = p), t.scalable && (o.scaleX = c, o.scaleY = m), this.clone();
+    }
+  }, {
+    key: "clone",
+    value: function() {
+      var a = this.element, t = this.url, o = a.crossOrigin, n = t;
+      this.options.checkCrossOrigin && tt(t) && (o || (o = "anonymous"), n = at(t)), this.crossOrigin = o, this.crossOriginUrl = n;
+      var p = document.createElement("img");
+      o && (p.crossOrigin = o), p.src = n || t, p.alt = a.alt || "The image to crop", this.image = p, p.onload = this.start.bind(this), p.onerror = this.stop.bind(this), j(p, Wi), a.parentNode.insertBefore(p, a.nextSibling);
+    }
+  }, {
+    key: "start",
+    value: function() {
+      var a = this, t = this.image;
+      t.onload = null, t.onerror = null, this.sizing = !0;
+      var o = B.navigator && /(?:iPad|iPhone|iPod).*?AppleWebKit/i.test(B.navigator.userAgent), n = function(l, r) {
+        y(a.imageData, {
+          naturalWidth: l,
+          naturalHeight: r,
+          aspectRatio: l / r
+        }), a.initialImageData = y({}, a.imageData), a.sizing = !1, a.sized = !0, a.build();
+      };
+      if (t.naturalWidth && !o) {
+        n(t.naturalWidth, t.naturalHeight);
+        return;
+      }
+      var p = document.createElement("img"), c = document.body || document.documentElement;
+      this.sizingImage = p, p.onload = function() {
+        n(p.width, p.height), o || c.removeChild(p);
+      }, p.src = t.src, o || (p.style.cssText = "left:0;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;opacity:0;position:absolute;top:0;z-index:-1;", c.appendChild(p));
+    }
+  }, {
+    key: "stop",
+    value: function() {
+      var a = this.image;
+      a.onload = null, a.onerror = null, a.parentNode.removeChild(a), this.image = null;
+    }
+  }, {
+    key: "build",
+    value: function() {
+      if (!(!this.sized || this.ready)) {
+        var a = this.element, t = this.options, o = this.image, n = a.parentNode, p = document.createElement("div");
+        p.innerHTML = $t;
+        var c = p.querySelector(".".concat(w, "-container")), m = c.querySelector(".".concat(w, "-canvas")), l = c.querySelector(".".concat(w, "-drag-box")), r = c.querySelector(".".concat(w, "-crop-box")), s = r.querySelector(".".concat(w, "-face"));
+        this.container = n, this.cropper = c, this.canvas = m, this.dragBox = l, this.cropBox = r, this.viewBox = c.querySelector(".".concat(w, "-view-box")), this.face = s, m.appendChild(o), j(a, T), n.insertBefore(c, a.nextSibling), L(o, Wi), this.initPreview(), this.bind(), t.initialAspectRatio = Math.max(0, t.initialAspectRatio) || NaN, t.aspectRatio = Math.max(0, t.aspectRatio) || NaN, t.viewMode = Math.max(0, Math.min(3, Math.round(t.viewMode))) || 0, j(r, T), t.guides || j(r.getElementsByClassName("".concat(w, "-dashed")), T), t.center || j(r.getElementsByClassName("".concat(w, "-center")), T), t.background && j(c, "".concat(w, "-bg")), t.highlight || j(s, Pt), t.cropBoxMovable && (j(s, ki), si(s, ri, Oi)), t.cropBoxResizable || (j(r.getElementsByClassName("".concat(w, "-line")), T), j(r.getElementsByClassName("".concat(w, "-point")), T)), this.render(), this.ready = !0, this.setDragMode(t.dragMode), t.autoCrop && this.crop(), this.setData(t.data), A(t.ready) && R(a, Fi, t.ready, {
+          once: !0
+        }), ti(a, Fi);
+      }
+    }
+  }, {
+    key: "unbuild",
+    value: function() {
+      if (this.ready) {
+        this.ready = !1, this.unbind(), this.resetPreview();
+        var a = this.cropper.parentNode;
+        a && a.removeChild(this.cropper), L(this.element, T);
+      }
+    }
+  }, {
+    key: "uncreate",
+    value: function() {
+      this.ready ? (this.unbuild(), this.ready = !1, this.cropped = !1) : this.sizing ? (this.sizingImage.onload = null, this.sizing = !1, this.sized = !1) : this.reloading ? (this.xhr.onabort = null, this.xhr.abort()) : this.image && this.stop();
+    }
+    /**
+     * Get the no conflict cropper class.
+     * @returns {Cropper} The cropper class.
+     */
+  }], [{
+    key: "noConflict",
+    value: function() {
+      return window.Cropper = ba, e;
+    }
+    /**
+     * Change the default options.
+     * @param {Object} options - The new default options.
+     */
+  }, {
+    key: "setDefaults",
+    value: function(a) {
+      y(Ji, K(a) && a);
+    }
+  }]), e;
+}();
+y(yt.prototype, ha, va, fa, ua, ga, xa);
+function wa(e) {
+  return e && e.__esModule && Object.prototype.hasOwnProperty.call(e, "default") ? e.default : e;
+}
+function vi() {
+  this._types = /* @__PURE__ */ Object.create(null), this._extensions = /* @__PURE__ */ Object.create(null);
+  for (let e = 0; e < arguments.length; e++)
+    this.define(arguments[e]);
+  this.define = this.define.bind(this), this.getType = this.getType.bind(this), this.getExtension = this.getExtension.bind(this);
+}
+vi.prototype.define = function(e, i) {
+  for (let a in e) {
+    let t = e[a].map(function(o) {
+      return o.toLowerCase();
+    });
+    a = a.toLowerCase();
+    for (let o = 0; o < t.length; o++) {
+      const n = t[o];
+      if (n[0] !== "*") {
+        if (!i && n in this._types)
+          throw new Error(
+            'Attempt to change mapping for "' + n + '" extension from "' + this._types[n] + '" to "' + a + '". Pass `force=true` to allow this, otherwise remove "' + n + '" from the list of extensions for "' + a + '".'
+          );
+        this._types[n] = a;
+      }
+    }
+    if (i || !this._extensions[a]) {
+      const o = t[0];
+      this._extensions[a] = o[0] !== "*" ? o : o.substr(1);
+    }
+  }
+};
+vi.prototype.getType = function(e) {
+  e = String(e);
+  let i = e.replace(/^.*[/\\]/, "").toLowerCase(), a = i.replace(/^.*\./, "").toLowerCase(), t = i.length < e.length;
+  return (a.length < i.length - 1 || !t) && this._types[a] || null;
+};
+vi.prototype.getExtension = function(e) {
+  return e = /^\s*([^;\s]*)/.test(e) && RegExp.$1, e && this._extensions[e.toLowerCase()] || null;
+};
+var ya = vi, ka = { "application/andrew-inset": ["ez"], "application/applixware": ["aw"], "application/atom+xml": ["atom"], "application/atomcat+xml": ["atomcat"], "application/atomdeleted+xml": ["atomdeleted"], "application/atomsvc+xml": ["atomsvc"], "application/atsc-dwd+xml": ["dwd"], "application/atsc-held+xml": ["held"], "application/atsc-rsat+xml": ["rsat"], "application/bdoc": ["bdoc"], "application/calendar+xml": ["xcs"], "application/ccxml+xml": ["ccxml"], "application/cdfx+xml": ["cdfx"], "application/cdmi-capability": ["cdmia"], "application/cdmi-container": ["cdmic"], "application/cdmi-domain": ["cdmid"], "application/cdmi-object": ["cdmio"], "application/cdmi-queue": ["cdmiq"], "application/cu-seeme": ["cu"], "application/dash+xml": ["mpd"], "application/davmount+xml": ["davmount"], "application/docbook+xml": ["dbk"], "application/dssc+der": ["dssc"], "application/dssc+xml": ["xdssc"], "application/ecmascript": ["es", "ecma"], "application/emma+xml": ["emma"], "application/emotionml+xml": ["emotionml"], "application/epub+zip": ["epub"], "application/exi": ["exi"], "application/express": ["exp"], "application/fdt+xml": ["fdt"], "application/font-tdpfr": ["pfr"], "application/geo+json": ["geojson"], "application/gml+xml": ["gml"], "application/gpx+xml": ["gpx"], "application/gxf": ["gxf"], "application/gzip": ["gz"], "application/hjson": ["hjson"], "application/hyperstudio": ["stk"], "application/inkml+xml": ["ink", "inkml"], "application/ipfix": ["ipfix"], "application/its+xml": ["its"], "application/java-archive": ["jar", "war", "ear"], "application/java-serialized-object": ["ser"], "application/java-vm": ["class"], "application/javascript": ["js", "mjs"], "application/json": ["json", "map"], "application/json5": ["json5"], "application/jsonml+json": ["jsonml"], "application/ld+json": ["jsonld"], "application/lgr+xml": ["lgr"], "application/lost+xml": ["lostxml"], "application/mac-binhex40": ["hqx"], "application/mac-compactpro": ["cpt"], "application/mads+xml": ["mads"], "application/manifest+json": ["webmanifest"], "application/marc": ["mrc"], "application/marcxml+xml": ["mrcx"], "application/mathematica": ["ma", "nb", "mb"], "application/mathml+xml": ["mathml"], "application/mbox": ["mbox"], "application/mediaservercontrol+xml": ["mscml"], "application/metalink+xml": ["metalink"], "application/metalink4+xml": ["meta4"], "application/mets+xml": ["mets"], "application/mmt-aei+xml": ["maei"], "application/mmt-usd+xml": ["musd"], "application/mods+xml": ["mods"], "application/mp21": ["m21", "mp21"], "application/mp4": ["mp4s", "m4p"], "application/msword": ["doc", "dot"], "application/mxf": ["mxf"], "application/n-quads": ["nq"], "application/n-triples": ["nt"], "application/node": ["cjs"], "application/octet-stream": ["bin", "dms", "lrf", "mar", "so", "dist", "distz", "pkg", "bpk", "dump", "elc", "deploy", "exe", "dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "buffer"], "application/oda": ["oda"], "application/oebps-package+xml": ["opf"], "application/ogg": ["ogx"], "application/omdoc+xml": ["omdoc"], "application/onenote": ["onetoc", "onetoc2", "onetmp", "onepkg"], "application/oxps": ["oxps"], "application/p2p-overlay+xml": ["relo"], "application/patch-ops-error+xml": ["xer"], "application/pdf": ["pdf"], "application/pgp-encrypted": ["pgp"], "application/pgp-signature": ["asc", "sig"], "application/pics-rules": ["prf"], "application/pkcs10": ["p10"], "application/pkcs7-mime": ["p7m", "p7c"], "application/pkcs7-signature": ["p7s"], "application/pkcs8": ["p8"], "application/pkix-attr-cert": ["ac"], "application/pkix-cert": ["cer"], "application/pkix-crl": ["crl"], "application/pkix-pkipath": ["pkipath"], "application/pkixcmp": ["pki"], "application/pls+xml": ["pls"], "application/postscript": ["ai", "eps", "ps"], "application/provenance+xml": ["provx"], "application/pskc+xml": ["pskcxml"], "application/raml+yaml": ["raml"], "application/rdf+xml": ["rdf", "owl"], "application/reginfo+xml": ["rif"], "application/relax-ng-compact-syntax": ["rnc"], "application/resource-lists+xml": ["rl"], "application/resource-lists-diff+xml": ["rld"], "application/rls-services+xml": ["rs"], "application/route-apd+xml": ["rapd"], "application/route-s-tsid+xml": ["sls"], "application/route-usd+xml": ["rusd"], "application/rpki-ghostbusters": ["gbr"], "application/rpki-manifest": ["mft"], "application/rpki-roa": ["roa"], "application/rsd+xml": ["rsd"], "application/rss+xml": ["rss"], "application/rtf": ["rtf"], "application/sbml+xml": ["sbml"], "application/scvp-cv-request": ["scq"], "application/scvp-cv-response": ["scs"], "application/scvp-vp-request": ["spq"], "application/scvp-vp-response": ["spp"], "application/sdp": ["sdp"], "application/senml+xml": ["senmlx"], "application/sensml+xml": ["sensmlx"], "application/set-payment-initiation": ["setpay"], "application/set-registration-initiation": ["setreg"], "application/shf+xml": ["shf"], "application/sieve": ["siv", "sieve"], "application/smil+xml": ["smi", "smil"], "application/sparql-query": ["rq"], "application/sparql-results+xml": ["srx"], "application/srgs": ["gram"], "application/srgs+xml": ["grxml"], "application/sru+xml": ["sru"], "application/ssdl+xml": ["ssdl"], "application/ssml+xml": ["ssml"], "application/swid+xml": ["swidtag"], "application/tei+xml": ["tei", "teicorpus"], "application/thraud+xml": ["tfi"], "application/timestamped-data": ["tsd"], "application/toml": ["toml"], "application/trig": ["trig"], "application/ttml+xml": ["ttml"], "application/ubjson": ["ubj"], "application/urc-ressheet+xml": ["rsheet"], "application/urc-targetdesc+xml": ["td"], "application/voicexml+xml": ["vxml"], "application/wasm": ["wasm"], "application/widget": ["wgt"], "application/winhlp": ["hlp"], "application/wsdl+xml": ["wsdl"], "application/wspolicy+xml": ["wspolicy"], "application/xaml+xml": ["xaml"], "application/xcap-att+xml": ["xav"], "application/xcap-caps+xml": ["xca"], "application/xcap-diff+xml": ["xdf"], "application/xcap-el+xml": ["xel"], "application/xcap-ns+xml": ["xns"], "application/xenc+xml": ["xenc"], "application/xhtml+xml": ["xhtml", "xht"], "application/xliff+xml": ["xlf"], "application/xml": ["xml", "xsl", "xsd", "rng"], "application/xml-dtd": ["dtd"], "application/xop+xml": ["xop"], "application/xproc+xml": ["xpl"], "application/xslt+xml": ["*xsl", "xslt"], "application/xspf+xml": ["xspf"], "application/xv+xml": ["mxml", "xhvml", "xvml", "xvm"], "application/yang": ["yang"], "application/yin+xml": ["yin"], "application/zip": ["zip"], "audio/3gpp": ["*3gpp"], "audio/adpcm": ["adp"], "audio/amr": ["amr"], "audio/basic": ["au", "snd"], "audio/midi": ["mid", "midi", "kar", "rmi"], "audio/mobile-xmf": ["mxmf"], "audio/mp3": ["*mp3"], "audio/mp4": ["m4a", "mp4a"], "audio/mpeg": ["mpga", "mp2", "mp2a", "mp3", "m2a", "m3a"], "audio/ogg": ["oga", "ogg", "spx", "opus"], "audio/s3m": ["s3m"], "audio/silk": ["sil"], "audio/wav": ["wav"], "audio/wave": ["*wav"], "audio/webm": ["weba"], "audio/xm": ["xm"], "font/collection": ["ttc"], "font/otf": ["otf"], "font/ttf": ["ttf"], "font/woff": ["woff"], "font/woff2": ["woff2"], "image/aces": ["exr"], "image/apng": ["apng"], "image/avif": ["avif"], "image/bmp": ["bmp"], "image/cgm": ["cgm"], "image/dicom-rle": ["drle"], "image/emf": ["emf"], "image/fits": ["fits"], "image/g3fax": ["g3"], "image/gif": ["gif"], "image/heic": ["heic"], "image/heic-sequence": ["heics"], "image/heif": ["heif"], "image/heif-sequence": ["heifs"], "image/hej2k": ["hej2"], "image/hsj2": ["hsj2"], "image/ief": ["ief"], "image/jls": ["jls"], "image/jp2": ["jp2", "jpg2"], "image/jpeg": ["jpeg", "jpg", "jpe"], "image/jph": ["jph"], "image/jphc": ["jhc"], "image/jpm": ["jpm"], "image/jpx": ["jpx", "jpf"], "image/jxr": ["jxr"], "image/jxra": ["jxra"], "image/jxrs": ["jxrs"], "image/jxs": ["jxs"], "image/jxsc": ["jxsc"], "image/jxsi": ["jxsi"], "image/jxss": ["jxss"], "image/ktx": ["ktx"], "image/ktx2": ["ktx2"], "image/png": ["png"], "image/sgi": ["sgi"], "image/svg+xml": ["svg", "svgz"], "image/t38": ["t38"], "image/tiff": ["tif", "tiff"], "image/tiff-fx": ["tfx"], "image/webp": ["webp"], "image/wmf": ["wmf"], "message/disposition-notification": ["disposition-notification"], "message/global": ["u8msg"], "message/global-delivery-status": ["u8dsn"], "message/global-disposition-notification": ["u8mdn"], "message/global-headers": ["u8hdr"], "message/rfc822": ["eml", "mime"], "model/3mf": ["3mf"], "model/gltf+json": ["gltf"], "model/gltf-binary": ["glb"], "model/iges": ["igs", "iges"], "model/mesh": ["msh", "mesh", "silo"], "model/mtl": ["mtl"], "model/obj": ["obj"], "model/step+xml": ["stpx"], "model/step+zip": ["stpz"], "model/step-xml+zip": ["stpxz"], "model/stl": ["stl"], "model/vrml": ["wrl", "vrml"], "model/x3d+binary": ["*x3db", "x3dbz"], "model/x3d+fastinfoset": ["x3db"], "model/x3d+vrml": ["*x3dv", "x3dvz"], "model/x3d+xml": ["x3d", "x3dz"], "model/x3d-vrml": ["x3dv"], "text/cache-manifest": ["appcache", "manifest"], "text/calendar": ["ics", "ifb"], "text/coffeescript": ["coffee", "litcoffee"], "text/css": ["css"], "text/csv": ["csv"], "text/html": ["html", "htm", "shtml"], "text/jade": ["jade"], "text/jsx": ["jsx"], "text/less": ["less"], "text/markdown": ["markdown", "md"], "text/mathml": ["mml"], "text/mdx": ["mdx"], "text/n3": ["n3"], "text/plain": ["txt", "text", "conf", "def", "list", "log", "in", "ini"], "text/richtext": ["rtx"], "text/rtf": ["*rtf"], "text/sgml": ["sgml", "sgm"], "text/shex": ["shex"], "text/slim": ["slim", "slm"], "text/spdx": ["spdx"], "text/stylus": ["stylus", "styl"], "text/tab-separated-values": ["tsv"], "text/troff": ["t", "tr", "roff", "man", "me", "ms"], "text/turtle": ["ttl"], "text/uri-list": ["uri", "uris", "urls"], "text/vcard": ["vcard"], "text/vtt": ["vtt"], "text/xml": ["*xml"], "text/yaml": ["yaml", "yml"], "video/3gpp": ["3gp", "3gpp"], "video/3gpp2": ["3g2"], "video/h261": ["h261"], "video/h263": ["h263"], "video/h264": ["h264"], "video/iso.segment": ["m4s"], "video/jpeg": ["jpgv"], "video/jpm": ["*jpm", "jpgm"], "video/mj2": ["mj2", "mjp2"], "video/mp2t": ["ts"], "video/mp4": ["mp4", "mp4v", "mpg4"], "video/mpeg": ["mpeg", "mpg", "mpe", "m1v", "m2v"], "video/ogg": ["ogv"], "video/quicktime": ["qt", "mov"], "video/webm": ["webm"] }, Da = { "application/prs.cww": ["cww"], "application/vnd.1000minds.decision-model+xml": ["1km"], "application/vnd.3gpp.pic-bw-large": ["plb"], "application/vnd.3gpp.pic-bw-small": ["psb"], "application/vnd.3gpp.pic-bw-var": ["pvb"], "application/vnd.3gpp2.tcap": ["tcap"], "application/vnd.3m.post-it-notes": ["pwn"], "application/vnd.accpac.simply.aso": ["aso"], "application/vnd.accpac.simply.imp": ["imp"], "application/vnd.acucobol": ["acu"], "application/vnd.acucorp": ["atc", "acutc"], "application/vnd.adobe.air-application-installer-package+zip": ["air"], "application/vnd.adobe.formscentral.fcdt": ["fcdt"], "application/vnd.adobe.fxp": ["fxp", "fxpl"], "application/vnd.adobe.xdp+xml": ["xdp"], "application/vnd.adobe.xfdf": ["xfdf"], "application/vnd.ahead.space": ["ahead"], "application/vnd.airzip.filesecure.azf": ["azf"], "application/vnd.airzip.filesecure.azs": ["azs"], "application/vnd.amazon.ebook": ["azw"], "application/vnd.americandynamics.acc": ["acc"], "application/vnd.amiga.ami": ["ami"], "application/vnd.android.package-archive": ["apk"], "application/vnd.anser-web-certificate-issue-initiation": ["cii"], "application/vnd.anser-web-funds-transfer-initiation": ["fti"], "application/vnd.antix.game-component": ["atx"], "application/vnd.apple.installer+xml": ["mpkg"], "application/vnd.apple.keynote": ["key"], "application/vnd.apple.mpegurl": ["m3u8"], "application/vnd.apple.numbers": ["numbers"], "application/vnd.apple.pages": ["pages"], "application/vnd.apple.pkpass": ["pkpass"], "application/vnd.aristanetworks.swi": ["swi"], "application/vnd.astraea-software.iota": ["iota"], "application/vnd.audiograph": ["aep"], "application/vnd.balsamiq.bmml+xml": ["bmml"], "application/vnd.blueice.multipass": ["mpm"], "application/vnd.bmi": ["bmi"], "application/vnd.businessobjects": ["rep"], "application/vnd.chemdraw+xml": ["cdxml"], "application/vnd.chipnuts.karaoke-mmd": ["mmd"], "application/vnd.cinderella": ["cdy"], "application/vnd.citationstyles.style+xml": ["csl"], "application/vnd.claymore": ["cla"], "application/vnd.cloanto.rp9": ["rp9"], "application/vnd.clonk.c4group": ["c4g", "c4d", "c4f", "c4p", "c4u"], "application/vnd.cluetrust.cartomobile-config": ["c11amc"], "application/vnd.cluetrust.cartomobile-config-pkg": ["c11amz"], "application/vnd.commonspace": ["csp"], "application/vnd.contact.cmsg": ["cdbcmsg"], "application/vnd.cosmocaller": ["cmc"], "application/vnd.crick.clicker": ["clkx"], "application/vnd.crick.clicker.keyboard": ["clkk"], "application/vnd.crick.clicker.palette": ["clkp"], "application/vnd.crick.clicker.template": ["clkt"], "application/vnd.crick.clicker.wordbank": ["clkw"], "application/vnd.criticaltools.wbs+xml": ["wbs"], "application/vnd.ctc-posml": ["pml"], "application/vnd.cups-ppd": ["ppd"], "application/vnd.curl.car": ["car"], "application/vnd.curl.pcurl": ["pcurl"], "application/vnd.dart": ["dart"], "application/vnd.data-vision.rdz": ["rdz"], "application/vnd.dbf": ["dbf"], "application/vnd.dece.data": ["uvf", "uvvf", "uvd", "uvvd"], "application/vnd.dece.ttml+xml": ["uvt", "uvvt"], "application/vnd.dece.unspecified": ["uvx", "uvvx"], "application/vnd.dece.zip": ["uvz", "uvvz"], "application/vnd.denovo.fcselayout-link": ["fe_launch"], "application/vnd.dna": ["dna"], "application/vnd.dolby.mlp": ["mlp"], "application/vnd.dpgraph": ["dpg"], "application/vnd.dreamfactory": ["dfac"], "application/vnd.ds-keypoint": ["kpxx"], "application/vnd.dvb.ait": ["ait"], "application/vnd.dvb.service": ["svc"], "application/vnd.dynageo": ["geo"], "application/vnd.ecowin.chart": ["mag"], "application/vnd.enliven": ["nml"], "application/vnd.epson.esf": ["esf"], "application/vnd.epson.msf": ["msf"], "application/vnd.epson.quickanime": ["qam"], "application/vnd.epson.salt": ["slt"], "application/vnd.epson.ssf": ["ssf"], "application/vnd.eszigno3+xml": ["es3", "et3"], "application/vnd.ezpix-album": ["ez2"], "application/vnd.ezpix-package": ["ez3"], "application/vnd.fdf": ["fdf"], "application/vnd.fdsn.mseed": ["mseed"], "application/vnd.fdsn.seed": ["seed", "dataless"], "application/vnd.flographit": ["gph"], "application/vnd.fluxtime.clip": ["ftc"], "application/vnd.framemaker": ["fm", "frame", "maker", "book"], "application/vnd.frogans.fnc": ["fnc"], "application/vnd.frogans.ltf": ["ltf"], "application/vnd.fsc.weblaunch": ["fsc"], "application/vnd.fujitsu.oasys": ["oas"], "application/vnd.fujitsu.oasys2": ["oa2"], "application/vnd.fujitsu.oasys3": ["oa3"], "application/vnd.fujitsu.oasysgp": ["fg5"], "application/vnd.fujitsu.oasysprs": ["bh2"], "application/vnd.fujixerox.ddd": ["ddd"], "application/vnd.fujixerox.docuworks": ["xdw"], "application/vnd.fujixerox.docuworks.binder": ["xbd"], "application/vnd.fuzzysheet": ["fzs"], "application/vnd.genomatix.tuxedo": ["txd"], "application/vnd.geogebra.file": ["ggb"], "application/vnd.geogebra.tool": ["ggt"], "application/vnd.geometry-explorer": ["gex", "gre"], "application/vnd.geonext": ["gxt"], "application/vnd.geoplan": ["g2w"], "application/vnd.geospace": ["g3w"], "application/vnd.gmx": ["gmx"], "application/vnd.google-apps.document": ["gdoc"], "application/vnd.google-apps.presentation": ["gslides"], "application/vnd.google-apps.spreadsheet": ["gsheet"], "application/vnd.google-earth.kml+xml": ["kml"], "application/vnd.google-earth.kmz": ["kmz"], "application/vnd.grafeq": ["gqf", "gqs"], "application/vnd.groove-account": ["gac"], "application/vnd.groove-help": ["ghf"], "application/vnd.groove-identity-message": ["gim"], "application/vnd.groove-injector": ["grv"], "application/vnd.groove-tool-message": ["gtm"], "application/vnd.groove-tool-template": ["tpl"], "application/vnd.groove-vcard": ["vcg"], "application/vnd.hal+xml": ["hal"], "application/vnd.handheld-entertainment+xml": ["zmm"], "application/vnd.hbci": ["hbci"], "application/vnd.hhe.lesson-player": ["les"], "application/vnd.hp-hpgl": ["hpgl"], "application/vnd.hp-hpid": ["hpid"], "application/vnd.hp-hps": ["hps"], "application/vnd.hp-jlyt": ["jlt"], "application/vnd.hp-pcl": ["pcl"], "application/vnd.hp-pclxl": ["pclxl"], "application/vnd.hydrostatix.sof-data": ["sfd-hdstx"], "application/vnd.ibm.minipay": ["mpy"], "application/vnd.ibm.modcap": ["afp", "listafp", "list3820"], "application/vnd.ibm.rights-management": ["irm"], "application/vnd.ibm.secure-container": ["sc"], "application/vnd.iccprofile": ["icc", "icm"], "application/vnd.igloader": ["igl"], "application/vnd.immervision-ivp": ["ivp"], "application/vnd.immervision-ivu": ["ivu"], "application/vnd.insors.igm": ["igm"], "application/vnd.intercon.formnet": ["xpw", "xpx"], "application/vnd.intergeo": ["i2g"], "application/vnd.intu.qbo": ["qbo"], "application/vnd.intu.qfx": ["qfx"], "application/vnd.ipunplugged.rcprofile": ["rcprofile"], "application/vnd.irepository.package+xml": ["irp"], "application/vnd.is-xpr": ["xpr"], "application/vnd.isac.fcs": ["fcs"], "application/vnd.jam": ["jam"], "application/vnd.jcp.javame.midlet-rms": ["rms"], "application/vnd.jisp": ["jisp"], "application/vnd.joost.joda-archive": ["joda"], "application/vnd.kahootz": ["ktz", "ktr"], "application/vnd.kde.karbon": ["karbon"], "application/vnd.kde.kchart": ["chrt"], "application/vnd.kde.kformula": ["kfo"], "application/vnd.kde.kivio": ["flw"], "application/vnd.kde.kontour": ["kon"], "application/vnd.kde.kpresenter": ["kpr", "kpt"], "application/vnd.kde.kspread": ["ksp"], "application/vnd.kde.kword": ["kwd", "kwt"], "application/vnd.kenameaapp": ["htke"], "application/vnd.kidspiration": ["kia"], "application/vnd.kinar": ["kne", "knp"], "application/vnd.koan": ["skp", "skd", "skt", "skm"], "application/vnd.kodak-descriptor": ["sse"], "application/vnd.las.las+xml": ["lasxml"], "application/vnd.llamagraphics.life-balance.desktop": ["lbd"], "application/vnd.llamagraphics.life-balance.exchange+xml": ["lbe"], "application/vnd.lotus-1-2-3": ["123"], "application/vnd.lotus-approach": ["apr"], "application/vnd.lotus-freelance": ["pre"], "application/vnd.lotus-notes": ["nsf"], "application/vnd.lotus-organizer": ["org"], "application/vnd.lotus-screencam": ["scm"], "application/vnd.lotus-wordpro": ["lwp"], "application/vnd.macports.portpkg": ["portpkg"], "application/vnd.mapbox-vector-tile": ["mvt"], "application/vnd.mcd": ["mcd"], "application/vnd.medcalcdata": ["mc1"], "application/vnd.mediastation.cdkey": ["cdkey"], "application/vnd.mfer": ["mwf"], "application/vnd.mfmp": ["mfm"], "application/vnd.micrografx.flo": ["flo"], "application/vnd.micrografx.igx": ["igx"], "application/vnd.mif": ["mif"], "application/vnd.mobius.daf": ["daf"], "application/vnd.mobius.dis": ["dis"], "application/vnd.mobius.mbk": ["mbk"], "application/vnd.mobius.mqy": ["mqy"], "application/vnd.mobius.msl": ["msl"], "application/vnd.mobius.plc": ["plc"], "application/vnd.mobius.txf": ["txf"], "application/vnd.mophun.application": ["mpn"], "application/vnd.mophun.certificate": ["mpc"], "application/vnd.mozilla.xul+xml": ["xul"], "application/vnd.ms-artgalry": ["cil"], "application/vnd.ms-cab-compressed": ["cab"], "application/vnd.ms-excel": ["xls", "xlm", "xla", "xlc", "xlt", "xlw"], "application/vnd.ms-excel.addin.macroenabled.12": ["xlam"], "application/vnd.ms-excel.sheet.binary.macroenabled.12": ["xlsb"], "application/vnd.ms-excel.sheet.macroenabled.12": ["xlsm"], "application/vnd.ms-excel.template.macroenabled.12": ["xltm"], "application/vnd.ms-fontobject": ["eot"], "application/vnd.ms-htmlhelp": ["chm"], "application/vnd.ms-ims": ["ims"], "application/vnd.ms-lrm": ["lrm"], "application/vnd.ms-officetheme": ["thmx"], "application/vnd.ms-outlook": ["msg"], "application/vnd.ms-pki.seccat": ["cat"], "application/vnd.ms-pki.stl": ["*stl"], "application/vnd.ms-powerpoint": ["ppt", "pps", "pot"], "application/vnd.ms-powerpoint.addin.macroenabled.12": ["ppam"], "application/vnd.ms-powerpoint.presentation.macroenabled.12": ["pptm"], "application/vnd.ms-powerpoint.slide.macroenabled.12": ["sldm"], "application/vnd.ms-powerpoint.slideshow.macroenabled.12": ["ppsm"], "application/vnd.ms-powerpoint.template.macroenabled.12": ["potm"], "application/vnd.ms-project": ["mpp", "mpt"], "application/vnd.ms-word.document.macroenabled.12": ["docm"], "application/vnd.ms-word.template.macroenabled.12": ["dotm"], "application/vnd.ms-works": ["wps", "wks", "wcm", "wdb"], "application/vnd.ms-wpl": ["wpl"], "application/vnd.ms-xpsdocument": ["xps"], "application/vnd.mseq": ["mseq"], "application/vnd.musician": ["mus"], "application/vnd.muvee.style": ["msty"], "application/vnd.mynfc": ["taglet"], "application/vnd.neurolanguage.nlu": ["nlu"], "application/vnd.nitf": ["ntf", "nitf"], "application/vnd.noblenet-directory": ["nnd"], "application/vnd.noblenet-sealer": ["nns"], "application/vnd.noblenet-web": ["nnw"], "application/vnd.nokia.n-gage.ac+xml": ["*ac"], "application/vnd.nokia.n-gage.data": ["ngdat"], "application/vnd.nokia.n-gage.symbian.install": ["n-gage"], "application/vnd.nokia.radio-preset": ["rpst"], "application/vnd.nokia.radio-presets": ["rpss"], "application/vnd.novadigm.edm": ["edm"], "application/vnd.novadigm.edx": ["edx"], "application/vnd.novadigm.ext": ["ext"], "application/vnd.oasis.opendocument.chart": ["odc"], "application/vnd.oasis.opendocument.chart-template": ["otc"], "application/vnd.oasis.opendocument.database": ["odb"], "application/vnd.oasis.opendocument.formula": ["odf"], "application/vnd.oasis.opendocument.formula-template": ["odft"], "application/vnd.oasis.opendocument.graphics": ["odg"], "application/vnd.oasis.opendocument.graphics-template": ["otg"], "application/vnd.oasis.opendocument.image": ["odi"], "application/vnd.oasis.opendocument.image-template": ["oti"], "application/vnd.oasis.opendocument.presentation": ["odp"], "application/vnd.oasis.opendocument.presentation-template": ["otp"], "application/vnd.oasis.opendocument.spreadsheet": ["ods"], "application/vnd.oasis.opendocument.spreadsheet-template": ["ots"], "application/vnd.oasis.opendocument.text": ["odt"], "application/vnd.oasis.opendocument.text-master": ["odm"], "application/vnd.oasis.opendocument.text-template": ["ott"], "application/vnd.oasis.opendocument.text-web": ["oth"], "application/vnd.olpc-sugar": ["xo"], "application/vnd.oma.dd2+xml": ["dd2"], "application/vnd.openblox.game+xml": ["obgx"], "application/vnd.openofficeorg.extension": ["oxt"], "application/vnd.openstreetmap.data+xml": ["osm"], "application/vnd.openxmlformats-officedocument.presentationml.presentation": ["pptx"], "application/vnd.openxmlformats-officedocument.presentationml.slide": ["sldx"], "application/vnd.openxmlformats-officedocument.presentationml.slideshow": ["ppsx"], "application/vnd.openxmlformats-officedocument.presentationml.template": ["potx"], "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["xlsx"], "application/vnd.openxmlformats-officedocument.spreadsheetml.template": ["xltx"], "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["docx"], "application/vnd.openxmlformats-officedocument.wordprocessingml.template": ["dotx"], "application/vnd.osgeo.mapguide.package": ["mgp"], "application/vnd.osgi.dp": ["dp"], "application/vnd.osgi.subsystem": ["esa"], "application/vnd.palm": ["pdb", "pqa", "oprc"], "application/vnd.pawaafile": ["paw"], "application/vnd.pg.format": ["str"], "application/vnd.pg.osasli": ["ei6"], "application/vnd.picsel": ["efif"], "application/vnd.pmi.widget": ["wg"], "application/vnd.pocketlearn": ["plf"], "application/vnd.powerbuilder6": ["pbd"], "application/vnd.previewsystems.box": ["box"], "application/vnd.proteus.magazine": ["mgz"], "application/vnd.publishare-delta-tree": ["qps"], "application/vnd.pvi.ptid1": ["ptid"], "application/vnd.quark.quarkxpress": ["qxd", "qxt", "qwd", "qwt", "qxl", "qxb"], "application/vnd.rar": ["rar"], "application/vnd.realvnc.bed": ["bed"], "application/vnd.recordare.musicxml": ["mxl"], "application/vnd.recordare.musicxml+xml": ["musicxml"], "application/vnd.rig.cryptonote": ["cryptonote"], "application/vnd.rim.cod": ["cod"], "application/vnd.rn-realmedia": ["rm"], "application/vnd.rn-realmedia-vbr": ["rmvb"], "application/vnd.route66.link66+xml": ["link66"], "application/vnd.sailingtracker.track": ["st"], "application/vnd.seemail": ["see"], "application/vnd.sema": ["sema"], "application/vnd.semd": ["semd"], "application/vnd.semf": ["semf"], "application/vnd.shana.informed.formdata": ["ifm"], "application/vnd.shana.informed.formtemplate": ["itp"], "application/vnd.shana.informed.interchange": ["iif"], "application/vnd.shana.informed.package": ["ipk"], "application/vnd.simtech-mindmapper": ["twd", "twds"], "application/vnd.smaf": ["mmf"], "application/vnd.smart.teacher": ["teacher"], "application/vnd.software602.filler.form+xml": ["fo"], "application/vnd.solent.sdkm+xml": ["sdkm", "sdkd"], "application/vnd.spotfire.dxp": ["dxp"], "application/vnd.spotfire.sfs": ["sfs"], "application/vnd.stardivision.calc": ["sdc"], "application/vnd.stardivision.draw": ["sda"], "application/vnd.stardivision.impress": ["sdd"], "application/vnd.stardivision.math": ["smf"], "application/vnd.stardivision.writer": ["sdw", "vor"], "application/vnd.stardivision.writer-global": ["sgl"], "application/vnd.stepmania.package": ["smzip"], "application/vnd.stepmania.stepchart": ["sm"], "application/vnd.sun.wadl+xml": ["wadl"], "application/vnd.sun.xml.calc": ["sxc"], "application/vnd.sun.xml.calc.template": ["stc"], "application/vnd.sun.xml.draw": ["sxd"], "application/vnd.sun.xml.draw.template": ["std"], "application/vnd.sun.xml.impress": ["sxi"], "application/vnd.sun.xml.impress.template": ["sti"], "application/vnd.sun.xml.math": ["sxm"], "application/vnd.sun.xml.writer": ["sxw"], "application/vnd.sun.xml.writer.global": ["sxg"], "application/vnd.sun.xml.writer.template": ["stw"], "application/vnd.sus-calendar": ["sus", "susp"], "application/vnd.svd": ["svd"], "application/vnd.symbian.install": ["sis", "sisx"], "application/vnd.syncml+xml": ["xsm"], "application/vnd.syncml.dm+wbxml": ["bdm"], "application/vnd.syncml.dm+xml": ["xdm"], "application/vnd.syncml.dmddf+xml": ["ddf"], "application/vnd.tao.intent-module-archive": ["tao"], "application/vnd.tcpdump.pcap": ["pcap", "cap", "dmp"], "application/vnd.tmobile-livetv": ["tmo"], "application/vnd.trid.tpt": ["tpt"], "application/vnd.triscape.mxs": ["mxs"], "application/vnd.trueapp": ["tra"], "application/vnd.ufdl": ["ufd", "ufdl"], "application/vnd.uiq.theme": ["utz"], "application/vnd.umajin": ["umj"], "application/vnd.unity": ["unityweb"], "application/vnd.uoml+xml": ["uoml"], "application/vnd.vcx": ["vcx"], "application/vnd.visio": ["vsd", "vst", "vss", "vsw"], "application/vnd.visionary": ["vis"], "application/vnd.vsf": ["vsf"], "application/vnd.wap.wbxml": ["wbxml"], "application/vnd.wap.wmlc": ["wmlc"], "application/vnd.wap.wmlscriptc": ["wmlsc"], "application/vnd.webturbo": ["wtb"], "application/vnd.wolfram.player": ["nbp"], "application/vnd.wordperfect": ["wpd"], "application/vnd.wqd": ["wqd"], "application/vnd.wt.stf": ["stf"], "application/vnd.xara": ["xar"], "application/vnd.xfdl": ["xfdl"], "application/vnd.yamaha.hv-dic": ["hvd"], "application/vnd.yamaha.hv-script": ["hvs"], "application/vnd.yamaha.hv-voice": ["hvp"], "application/vnd.yamaha.openscoreformat": ["osf"], "application/vnd.yamaha.openscoreformat.osfpvg+xml": ["osfpvg"], "application/vnd.yamaha.smaf-audio": ["saf"], "application/vnd.yamaha.smaf-phrase": ["spf"], "application/vnd.yellowriver-custom-menu": ["cmp"], "application/vnd.zul": ["zir", "zirz"], "application/vnd.zzazz.deck+xml": ["zaz"], "application/x-7z-compressed": ["7z"], "application/x-abiword": ["abw"], "application/x-ace-compressed": ["ace"], "application/x-apple-diskimage": ["*dmg"], "application/x-arj": ["arj"], "application/x-authorware-bin": ["aab", "x32", "u32", "vox"], "application/x-authorware-map": ["aam"], "application/x-authorware-seg": ["aas"], "application/x-bcpio": ["bcpio"], "application/x-bdoc": ["*bdoc"], "application/x-bittorrent": ["torrent"], "application/x-blorb": ["blb", "blorb"], "application/x-bzip": ["bz"], "application/x-bzip2": ["bz2", "boz"], "application/x-cbr": ["cbr", "cba", "cbt", "cbz", "cb7"], "application/x-cdlink": ["vcd"], "application/x-cfs-compressed": ["cfs"], "application/x-chat": ["chat"], "application/x-chess-pgn": ["pgn"], "application/x-chrome-extension": ["crx"], "application/x-cocoa": ["cco"], "application/x-conference": ["nsc"], "application/x-cpio": ["cpio"], "application/x-csh": ["csh"], "application/x-debian-package": ["*deb", "udeb"], "application/x-dgc-compressed": ["dgc"], "application/x-director": ["dir", "dcr", "dxr", "cst", "cct", "cxt", "w3d", "fgd", "swa"], "application/x-doom": ["wad"], "application/x-dtbncx+xml": ["ncx"], "application/x-dtbook+xml": ["dtb"], "application/x-dtbresource+xml": ["res"], "application/x-dvi": ["dvi"], "application/x-envoy": ["evy"], "application/x-eva": ["eva"], "application/x-font-bdf": ["bdf"], "application/x-font-ghostscript": ["gsf"], "application/x-font-linux-psf": ["psf"], "application/x-font-pcf": ["pcf"], "application/x-font-snf": ["snf"], "application/x-font-type1": ["pfa", "pfb", "pfm", "afm"], "application/x-freearc": ["arc"], "application/x-futuresplash": ["spl"], "application/x-gca-compressed": ["gca"], "application/x-glulx": ["ulx"], "application/x-gnumeric": ["gnumeric"], "application/x-gramps-xml": ["gramps"], "application/x-gtar": ["gtar"], "application/x-hdf": ["hdf"], "application/x-httpd-php": ["php"], "application/x-install-instructions": ["install"], "application/x-iso9660-image": ["*iso"], "application/x-iwork-keynote-sffkey": ["*key"], "application/x-iwork-numbers-sffnumbers": ["*numbers"], "application/x-iwork-pages-sffpages": ["*pages"], "application/x-java-archive-diff": ["jardiff"], "application/x-java-jnlp-file": ["jnlp"], "application/x-keepass2": ["kdbx"], "application/x-latex": ["latex"], "application/x-lua-bytecode": ["luac"], "application/x-lzh-compressed": ["lzh", "lha"], "application/x-makeself": ["run"], "application/x-mie": ["mie"], "application/x-mobipocket-ebook": ["prc", "mobi"], "application/x-ms-application": ["application"], "application/x-ms-shortcut": ["lnk"], "application/x-ms-wmd": ["wmd"], "application/x-ms-wmz": ["wmz"], "application/x-ms-xbap": ["xbap"], "application/x-msaccess": ["mdb"], "application/x-msbinder": ["obd"], "application/x-mscardfile": ["crd"], "application/x-msclip": ["clp"], "application/x-msdos-program": ["*exe"], "application/x-msdownload": ["*exe", "*dll", "com", "bat", "*msi"], "application/x-msmediaview": ["mvb", "m13", "m14"], "application/x-msmetafile": ["*wmf", "*wmz", "*emf", "emz"], "application/x-msmoney": ["mny"], "application/x-mspublisher": ["pub"], "application/x-msschedule": ["scd"], "application/x-msterminal": ["trm"], "application/x-mswrite": ["wri"], "application/x-netcdf": ["nc", "cdf"], "application/x-ns-proxy-autoconfig": ["pac"], "application/x-nzb": ["nzb"], "application/x-perl": ["pl", "pm"], "application/x-pilot": ["*prc", "*pdb"], "application/x-pkcs12": ["p12", "pfx"], "application/x-pkcs7-certificates": ["p7b", "spc"], "application/x-pkcs7-certreqresp": ["p7r"], "application/x-rar-compressed": ["*rar"], "application/x-redhat-package-manager": ["rpm"], "application/x-research-info-systems": ["ris"], "application/x-sea": ["sea"], "application/x-sh": ["sh"], "application/x-shar": ["shar"], "application/x-shockwave-flash": ["swf"], "application/x-silverlight-app": ["xap"], "application/x-sql": ["sql"], "application/x-stuffit": ["sit"], "application/x-stuffitx": ["sitx"], "application/x-subrip": ["srt"], "application/x-sv4cpio": ["sv4cpio"], "application/x-sv4crc": ["sv4crc"], "application/x-t3vm-image": ["t3"], "application/x-tads": ["gam"], "application/x-tar": ["tar"], "application/x-tcl": ["tcl", "tk"], "application/x-tex": ["tex"], "application/x-tex-tfm": ["tfm"], "application/x-texinfo": ["texinfo", "texi"], "application/x-tgif": ["*obj"], "application/x-ustar": ["ustar"], "application/x-virtualbox-hdd": ["hdd"], "application/x-virtualbox-ova": ["ova"], "application/x-virtualbox-ovf": ["ovf"], "application/x-virtualbox-vbox": ["vbox"], "application/x-virtualbox-vbox-extpack": ["vbox-extpack"], "application/x-virtualbox-vdi": ["vdi"], "application/x-virtualbox-vhd": ["vhd"], "application/x-virtualbox-vmdk": ["vmdk"], "application/x-wais-source": ["src"], "application/x-web-app-manifest+json": ["webapp"], "application/x-x509-ca-cert": ["der", "crt", "pem"], "application/x-xfig": ["fig"], "application/x-xliff+xml": ["*xlf"], "application/x-xpinstall": ["xpi"], "application/x-xz": ["xz"], "application/x-zmachine": ["z1", "z2", "z3", "z4", "z5", "z6", "z7", "z8"], "audio/vnd.dece.audio": ["uva", "uvva"], "audio/vnd.digital-winds": ["eol"], "audio/vnd.dra": ["dra"], "audio/vnd.dts": ["dts"], "audio/vnd.dts.hd": ["dtshd"], "audio/vnd.lucent.voice": ["lvp"], "audio/vnd.ms-playready.media.pya": ["pya"], "audio/vnd.nuera.ecelp4800": ["ecelp4800"], "audio/vnd.nuera.ecelp7470": ["ecelp7470"], "audio/vnd.nuera.ecelp9600": ["ecelp9600"], "audio/vnd.rip": ["rip"], "audio/x-aac": ["aac"], "audio/x-aiff": ["aif", "aiff", "aifc"], "audio/x-caf": ["caf"], "audio/x-flac": ["flac"], "audio/x-m4a": ["*m4a"], "audio/x-matroska": ["mka"], "audio/x-mpegurl": ["m3u"], "audio/x-ms-wax": ["wax"], "audio/x-ms-wma": ["wma"], "audio/x-pn-realaudio": ["ram", "ra"], "audio/x-pn-realaudio-plugin": ["rmp"], "audio/x-realaudio": ["*ra"], "audio/x-wav": ["*wav"], "chemical/x-cdx": ["cdx"], "chemical/x-cif": ["cif"], "chemical/x-cmdf": ["cmdf"], "chemical/x-cml": ["cml"], "chemical/x-csml": ["csml"], "chemical/x-xyz": ["xyz"], "image/prs.btif": ["btif"], "image/prs.pti": ["pti"], "image/vnd.adobe.photoshop": ["psd"], "image/vnd.airzip.accelerator.azv": ["azv"], "image/vnd.dece.graphic": ["uvi", "uvvi", "uvg", "uvvg"], "image/vnd.djvu": ["djvu", "djv"], "image/vnd.dvb.subtitle": ["*sub"], "image/vnd.dwg": ["dwg"], "image/vnd.dxf": ["dxf"], "image/vnd.fastbidsheet": ["fbs"], "image/vnd.fpx": ["fpx"], "image/vnd.fst": ["fst"], "image/vnd.fujixerox.edmics-mmr": ["mmr"], "image/vnd.fujixerox.edmics-rlc": ["rlc"], "image/vnd.microsoft.icon": ["ico"], "image/vnd.ms-dds": ["dds"], "image/vnd.ms-modi": ["mdi"], "image/vnd.ms-photo": ["wdp"], "image/vnd.net-fpx": ["npx"], "image/vnd.pco.b16": ["b16"], "image/vnd.tencent.tap": ["tap"], "image/vnd.valve.source.texture": ["vtf"], "image/vnd.wap.wbmp": ["wbmp"], "image/vnd.xiff": ["xif"], "image/vnd.zbrush.pcx": ["pcx"], "image/x-3ds": ["3ds"], "image/x-cmu-raster": ["ras"], "image/x-cmx": ["cmx"], "image/x-freehand": ["fh", "fhc", "fh4", "fh5", "fh7"], "image/x-icon": ["*ico"], "image/x-jng": ["jng"], "image/x-mrsid-image": ["sid"], "image/x-ms-bmp": ["*bmp"], "image/x-pcx": ["*pcx"], "image/x-pict": ["pic", "pct"], "image/x-portable-anymap": ["pnm"], "image/x-portable-bitmap": ["pbm"], "image/x-portable-graymap": ["pgm"], "image/x-portable-pixmap": ["ppm"], "image/x-rgb": ["rgb"], "image/x-tga": ["tga"], "image/x-xbitmap": ["xbm"], "image/x-xpixmap": ["xpm"], "image/x-xwindowdump": ["xwd"], "message/vnd.wfa.wsc": ["wsc"], "model/vnd.collada+xml": ["dae"], "model/vnd.dwf": ["dwf"], "model/vnd.gdl": ["gdl"], "model/vnd.gtw": ["gtw"], "model/vnd.mts": ["mts"], "model/vnd.opengex": ["ogex"], "model/vnd.parasolid.transmit.binary": ["x_b"], "model/vnd.parasolid.transmit.text": ["x_t"], "model/vnd.sap.vds": ["vds"], "model/vnd.usdz+zip": ["usdz"], "model/vnd.valve.source.compiled-map": ["bsp"], "model/vnd.vtu": ["vtu"], "text/prs.lines.tag": ["dsc"], "text/vnd.curl": ["curl"], "text/vnd.curl.dcurl": ["dcurl"], "text/vnd.curl.mcurl": ["mcurl"], "text/vnd.curl.scurl": ["scurl"], "text/vnd.dvb.subtitle": ["sub"], "text/vnd.fly": ["fly"], "text/vnd.fmi.flexstor": ["flx"], "text/vnd.graphviz": ["gv"], "text/vnd.in3d.3dml": ["3dml"], "text/vnd.in3d.spot": ["spot"], "text/vnd.sun.j2me.app-descriptor": ["jad"], "text/vnd.wap.wml": ["wml"], "text/vnd.wap.wmlscript": ["wmls"], "text/x-asm": ["s", "asm"], "text/x-c": ["c", "cc", "cxx", "cpp", "h", "hh", "dic"], "text/x-component": ["htc"], "text/x-fortran": ["f", "for", "f77", "f90"], "text/x-handlebars-template": ["hbs"], "text/x-java-source": ["java"], "text/x-lua": ["lua"], "text/x-markdown": ["mkd"], "text/x-nfo": ["nfo"], "text/x-opml": ["opml"], "text/x-org": ["*org"], "text/x-pascal": ["p", "pas"], "text/x-processing": ["pde"], "text/x-sass": ["sass"], "text/x-scss": ["scss"], "text/x-setext": ["etx"], "text/x-sfv": ["sfv"], "text/x-suse-ymp": ["ymp"], "text/x-uuencode": ["uu"], "text/x-vcalendar": ["vcs"], "text/x-vcard": ["vcf"], "video/vnd.dece.hd": ["uvh", "uvvh"], "video/vnd.dece.mobile": ["uvm", "uvvm"], "video/vnd.dece.pd": ["uvp", "uvvp"], "video/vnd.dece.sd": ["uvs", "uvvs"], "video/vnd.dece.video": ["uvv", "uvvv"], "video/vnd.dvb.file": ["dvb"], "video/vnd.fvt": ["fvt"], "video/vnd.mpegurl": ["mxu", "m4u"], "video/vnd.ms-playready.media.pyv": ["pyv"], "video/vnd.uvvu.mp4": ["uvu", "uvvu"], "video/vnd.vivo": ["viv"], "video/x-f4v": ["f4v"], "video/x-fli": ["fli"], "video/x-flv": ["flv"], "video/x-m4v": ["m4v"], "video/x-matroska": ["mkv", "mk3d", "mks"], "video/x-mng": ["mng"], "video/x-ms-asf": ["asf", "asx"], "video/x-ms-vob": ["vob"], "video/x-ms-wm": ["wm"], "video/x-ms-wmv": ["wmv"], "video/x-ms-wmx": ["wmx"], "video/x-ms-wvx": ["wvx"], "video/x-msvideo": ["avi"], "video/x-sgi-movie": ["movie"], "video/x-smv": ["smv"], "x-conference/x-cooltalk": ["ice"] };
+let Ea = ya;
+var Ma = new Ea(ka, Da);
+const za = /* @__PURE__ */ wa(Ma);
+function ja(e) {
+  return Object.prototype.toString.call(e).slice(8, -1).toLowerCase();
+}
+function kt(e) {
+  return ja(e) === "object";
+}
+const Dt = typeof window < "u";
+Dt && navigator.userAgent.toLowerCase();
+function Ca(e) {
+  return e.startsWith("data") && e.includes("base64") ? e.split(",")[0].replace(/data:(.*);base64/, "$1") : za.getType(e) || "";
+}
+function Et({ type: e, id: i, resource: a }) {
+  return new Promise((t, o) => {
+    if (!Dt || document.querySelector(i)) {
+      o();
+      return;
+    }
+    function n(p) {
+      p.addEventListener("load", t), p.addEventListener("error", o), p.addEventListener("abort", o);
+    }
+    switch (e) {
+      case "js": {
+        const p = document.createElement("script");
+        p.async = !0, p.src = a, n(p), document.head.appendChild(p);
+        break;
+      }
+      case "css": {
+        const p = document.createElement("link");
+        p.id = i, p.rel = "stylesheet", p.href = a, n(p), document.head.appendChild(p);
+        break;
+      }
+      case "style": {
+        const p = document.createElement("style");
+        p.id = i, n(p), document.head.appendChild(p), p.appendChild(document.createTextNode(a));
+        break;
+      }
+    }
+  });
+}
+function Aa() {
+  return process.env.NODE_ENV;
+}
+Aa();
+function Ri(e) {
+  return process.env.NODE_ENV === e;
+}
+Ri("development");
+Ri("test");
+Ri("production");
+function et({
+  mode: e,
+  dataURI: i
+}) {
+  return e === "round" ? "image/png" : Ca(i);
+}
+function nt(e) {
+  const i = document.createElement("canvas"), a = i.getContext("2d");
+  if (!a)
+    return i;
+  const { width: t, height: o } = e;
+  return i.width = t, i.height = o, a.imageSmoothingEnabled = !0, a.drawImage(e, 0, 0, t, o), a.globalCompositeOperation = "destination-in", a.beginPath(), a.arc(
+    t / 2,
+    o / 2,
+    Math.min(t, o) / 2,
+    0,
+    2 * Math.PI,
+    !0
+  ), a.fill(), i;
+}
+function ot(e, i = {}) {
+  if (!kt(e))
+    return i;
+  const { mode: a, width: t, height: o } = e;
+  switch (a) {
+    case "fixedSize":
+    case "round": {
+      i.width = t, i.height = o;
+      break;
+    }
+  }
+  return i;
+}
+const Ta = {
+  /**
+   * The source of the image to be cropped
+   * @description The value of the `src` attribute of `<img src="" />`
+   */
+  img: {
+    type: String,
+    required: !0,
+    default: ""
+  },
+  /**
+   * Style Sheet for Crop Box
+   */
+  boxStyle: {
+    type: Object,
+    required: !1,
+    default: () => ({})
+  },
+  /**
+   * Options for cropperjs
+   * @see https://github.com/fengyuanchen/cropperjs#options
+   */
+  options: {
+    type: Object,
+    required: !1,
+    default: () => ({})
+  },
+  /**
+   * Some preset modes provided by this plugin
+   */
+  presetMode: {
+    type: Object,
+    required: !1,
+    default: () => ({})
+  }
+}, Oa = `/*!
+ * Cropper.js v1.6.1
+ * https://fengyuanchen.github.io/cropperjs
+ *
+ * Copyright 2015-present Chen Fengyuan
+ * Released under the MIT license
+ *
+ * Date: 2023-09-17T03:44:17.565Z
+ */.cropper-container{direction:ltr;font-size:0;line-height:0;position:relative;-ms-touch-action:none;touch-action:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.cropper-container img{backface-visibility:hidden;display:block;height:100%;image-orientation:0deg;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;width:100%}.cropper-wrap-box,.cropper-canvas,.cropper-drag-box,.cropper-crop-box,.cropper-modal{bottom:0;left:0;position:absolute;right:0;top:0}.cropper-wrap-box,.cropper-canvas{overflow:hidden}.cropper-drag-box{background-color:#fff;opacity:0}.cropper-modal{background-color:#000;opacity:.5}.cropper-view-box{display:block;height:100%;outline:1px solid #39f;outline-color:#3399ffbf;overflow:hidden;width:100%}.cropper-dashed{border:0 dashed #eee;display:block;opacity:.5;position:absolute}.cropper-dashed.dashed-h{border-bottom-width:1px;border-top-width:1px;height:calc(100% / 3);left:0;top:calc(100% / 3);width:100%}.cropper-dashed.dashed-v{border-left-width:1px;border-right-width:1px;height:100%;left:calc(100% / 3);top:0;width:calc(100% / 3)}.cropper-center{display:block;height:0;left:50%;opacity:.75;position:absolute;top:50%;width:0}.cropper-center:before,.cropper-center:after{background-color:#eee;content:" ";display:block;position:absolute}.cropper-center:before{height:1px;left:-3px;top:0;width:7px}.cropper-center:after{height:7px;left:0;top:-3px;width:1px}.cropper-face,.cropper-line,.cropper-point{display:block;height:100%;opacity:.1;position:absolute;width:100%}.cropper-face{background-color:#fff;left:0;top:0}.cropper-line{background-color:#39f}.cropper-line.line-e{cursor:ew-resize;right:-3px;top:0;width:5px}.cropper-line.line-n{cursor:ns-resize;height:5px;left:0;top:-3px}.cropper-line.line-w{cursor:ew-resize;left:-3px;top:0;width:5px}.cropper-line.line-s{bottom:-3px;cursor:ns-resize;height:5px;left:0}.cropper-point{background-color:#39f;height:5px;opacity:.75;width:5px}.cropper-point.point-e{cursor:ew-resize;margin-top:-3px;right:-3px;top:50%}.cropper-point.point-n{cursor:ns-resize;left:50%;margin-left:-3px;top:-3px}.cropper-point.point-w{cursor:ew-resize;left:-3px;margin-top:-3px;top:50%}.cropper-point.point-s{bottom:-3px;cursor:s-resize;left:50%;margin-left:-3px}.cropper-point.point-ne{cursor:nesw-resize;right:-3px;top:-3px}.cropper-point.point-nw{cursor:nwse-resize;left:-3px;top:-3px}.cropper-point.point-sw{bottom:-3px;cursor:nesw-resize;left:-3px}.cropper-point.point-se{bottom:-3px;cursor:nwse-resize;height:20px;opacity:1;right:-3px;width:20px}@media (min-width: 768px){.cropper-point.point-se{height:15px;width:15px}}@media (min-width: 992px){.cropper-point.point-se{height:10px;width:10px}}@media (min-width: 1200px){.cropper-point.point-se{height:5px;opacity:.75;width:5px}}.cropper-point.point-se:before{background-color:#39f;bottom:-50%;content:" ";display:block;height:200%;opacity:0;position:absolute;right:-50%;width:200%}.cropper-invisible{opacity:0}.cropper-bg{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC)}.cropper-hide{display:block;height:0;position:absolute;width:0}.cropper-hidden{display:none!important}.cropper-move{cursor:move}.cropper-crop{cursor:crosshair}.cropper-disabled .cropper-drag-box,.cropper-disabled .cropper-face,.cropper-disabled .cropper-line,.cropper-disabled .cropper-point{cursor:not-allowed}
+`, Na = `.vue--picture-cropper__wrap{width:100%;height:100%;margin:0}.vue--picture-cropper__img{display:block;width:auto;height:auto;max-width:100%;max-height:100%}.vue--picture-cropper__wrap-round .cropper-view-box,.vue--picture-cropper__wrap-round .cropper-face{border-radius:50%}
+`;
+Et({
+  type: "style",
+  id: "cropperjs",
+  resource: Oa
+}).catch((e) => {
+  console.log(e);
+});
+Et({
+  type: "style",
+  id: "vue-picture-cropper",
+  resource: Na
+}).catch((e) => {
+  console.log(e);
+});
+let S;
+const Ra = /* @__PURE__ */ jt({
+  name: "VuePictureCropper",
+  props: Ta,
+  setup(e) {
+    const i = Pi(), a = Pi("");
+    async function t() {
+      await Tt();
+      const l = window.setInterval(() => {
+        if (i.value)
+          try {
+            S = new yt(i.value, e.options), window.clearInterval(l), n(), a.value = et({
+              mode: e.presetMode.mode,
+              dataURI: e.img
+            }), i.value.addEventListener("ready", () => {
+              o();
+            });
+          } catch (r) {
+            console.log(r);
+          }
+      }, 10);
+    }
+    function o() {
+      if (!kt(e.presetMode))
+        return;
+      const {
+        mode: l,
+        width: r,
+        height: s
+      } = e.presetMode;
+      switch (l) {
+        case "fixedSize":
+        case "round": {
+          S.setCropBoxData({
+            width: r,
+            height: s
+          });
+          break;
+        }
+      }
+    }
+    function n() {
+      S.getDataURL = p, S.getBlob = c, S.getFile = m;
+    }
+    function p(l = {}) {
+      l = ot(e.presetMode, l);
+      try {
+        let r = S.getCroppedCanvas(l);
+        return e.presetMode.mode === "round" && (r = nt(r)), r.toDataURL(a.value);
+      } catch {
+        return "";
+      }
+    }
+    async function c(l = {}) {
+      return l = ot(e.presetMode, l), new Promise((r) => {
+        try {
+          let s = S.getCroppedCanvas(l);
+          e.presetMode.mode === "round" && (s = nt(s)), s.toBlob((d) => {
+            r(d);
+          }, a.value);
+        } catch {
+          r(null);
+        }
+      });
+    }
+    async function m(l = {}) {
+      const {
+        fileName: r
+      } = l, s = a.value.replace(/image\//, ""), d = r ? `${r}.${s}` : `cropped-${Date.now()}.${s}`, v = await c(l);
+      return v ? new File([v], d, {
+        type: a.value
+      }) : null;
+    }
+    return Ct(() => e.img, async () => {
+      if (!S) {
+        await t();
+        return;
+      }
+      try {
+        S.replace(e.img), a.value = et({
+          mode: e.presetMode.mode,
+          dataURI: e.img
+        }), n();
+      } catch (l) {
+        console.log(l);
+      }
+    }, {
+      immediate: !0
+    }), At(() => {
+      S && (S.destroy(), S = null);
+    }), () => Xi("div", {
+      class: `vue--picture-cropper__wrap ${e.presetMode.mode === "round" ? "vue--picture-cropper__wrap-round" : ""}`,
+      style: e.boxStyle
+    }, [Xi("img", {
+      ref: i,
+      class: "vue--picture-cropper__img",
+      src: e.img
+    }, null)]);
+  }
+});
+export {
+  S as cropper,
+  Ra as default
+};

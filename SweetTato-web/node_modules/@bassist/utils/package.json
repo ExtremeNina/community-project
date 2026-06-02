@@ -1,0 +1,32 @@
+{
+  "name": "@bassist/utils",
+  "version": "0.4.0",
+  "description": "Opinionated collection of common JavaScript / TypeScript utils by @chengpeiquan .",
+  "author": "chengpeiquan <chengpeiquan@chengpeiquan.com>",
+  "license": "MIT",
+  "homepage": "https://paka.dev/npm/@bassist/utils",
+  "files": [
+    "lib",
+    "types"
+  ],
+  "main": "./lib/index.min.js",
+  "module": "./lib/index.mjs",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs",
+      "types": "./types/index.d.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chengpeiquan/bassist.git"
+  },
+  "keywords": [
+    "utils"
+  ],
+  "dependencies": {
+    "@withtypes/mime": "^0.1.2"
+  }
+}

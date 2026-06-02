@@ -1,0 +1,84 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: OnlyOne
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/only?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 123456
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  rabbitmq:
+    host: localhost
+    username: Nina
+    password: 123456
+    port: 5672
+    virtual-host: /
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+      retry:
+        enabled: true
+        initial-interval: 1000
+        multiplier: 1.5
+        max-attempts: 3
+    listener:
+      type: simple
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liJ1yyBUbZHqY7Le
+            client-secret: 48351af23c7e6effd30cb38107f0910b872cef8b
+            scope: user:email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: github
+            provider: github
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: login
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 3550478009@qq.com
+    password: ytzilplmjcfndbbj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+mybatis-plus:
+  type-aliases-package: com.example.onlyone.Entity
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: update-images
+
+jwt:
+  secret: your-very-long-secret-key-that-is-at-least-32-characters-long
+  access-expiration: 1800000
+  refresh-expiration: 604800000
+
+aliyun:
+  moderation:
+    access-key-id: ${ALIYUN_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_ACCESS_KEY_SECRET:}
+    region-id: cn-shanghai

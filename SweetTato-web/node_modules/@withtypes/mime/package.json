@@ -1,0 +1,43 @@
+{
+  "name": "@withtypes/mime",
+  "version": "0.1.2",
+  "description": "MIME with types.",
+  "author": "chengpeiquan <chengpeiquan@chengpeiquan.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/chengpeiquan/withtypes/tree/main/packages/mime",
+  "files": [
+    "lib",
+    "types"
+  ],
+  "main": "./lib/index.min.js",
+  "module": "./lib/index.mjs",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs",
+      "types": "./types/index.d.ts"
+    },
+    "./lite": {
+      "import": "./lib/lite.mjs",
+      "require": "./lib/lite.cjs",
+      "types": "./types/lite.d.ts"
+    },
+    "./Mime": {
+      "import": "./lib/Mime.mjs",
+      "require": "./lib/Mime.cjs",
+      "types": "./types/Mime.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chengpeiquan/withtypes.git"
+  },
+  "keywords": [
+    "utils",
+    "mime"
+  ],
+  "dependencies": {
+    "mime": "^3.0.0"
+  }
+}

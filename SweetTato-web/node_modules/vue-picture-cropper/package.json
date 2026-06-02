@@ -1,0 +1,86 @@
+{
+  "name": "vue-picture-cropper",
+  "version": "0.7.0",
+  "description": "A simple and easy-to-use picture cropping component for Vue 3.",
+  "author": "chengpeiquan <chengpeiquan@chengpeiquan.com>",
+  "homepage": "https://cropper.chengpeiquan.com",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.min.js",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs",
+      "types": "./lib/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "pnpm -F docs dev",
+    "build": "run-s build:*",
+    "build:lib": "vite build",
+    "build:types": "tsx scripts/buildTypes",
+    "build:docs": "pnpm -F docs build",
+    "preview": "pnpm -F docs preview",
+    "lint": "eslint src",
+    "format": "prettier --write src",
+    "mirror:get": "npm config get registry",
+    "mirror:set": "npm config set registry https://registry.npmmirror.com",
+    "mirror:rm": "npm config rm registry",
+    "backup": "git add . && git commit -m \"chore: backup\" && git push",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chengpeiquan/vue-picture-cropper.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "picture cropper",
+    "image cropper",
+    "photo cropper",
+    "vue3 cropper",
+    "vue3 cropperjs"
+  ],
+  "dependencies": {
+    "@bassist/utils": "^0.4.0",
+    "cropperjs": "^1.6.1"
+  },
+  "devDependencies": {
+    "@bassist/commit": "^0.1.0",
+    "@bassist/eslint": "^0.5.0",
+    "@bassist/tsconfig": "^0.1.1",
+    "@types/node": "^20.8.2",
+    "@vitejs/plugin-vue": "^4.4.0",
+    "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@withtypes/fs-extra": "^0.1.1",
+    "dts-bundle-generator": "^8.0.1",
+    "eslint": "^8.50.0",
+    "husky": "^8.0.3",
+    "less": "^4.2.0",
+    "lint-staged": "^14.0.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.3",
+    "tsx": "^3.13.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vite-plugin-banner": "^0.7.1",
+    "vue": "^3.2.13"
+  },
+  "peerDependencies": {
+    "vue": ">=3.2.13"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue,ts,tsx}": [
+      "prettier --write src",
+      "eslint --fix src"
+    ]
+  }
+}
